@@ -1,5 +1,3 @@
-use clap::Parser;
-use reqwest::{header::COOKIE, Client};
 use rocket::{
   http::Status,
   outcome::Outcome,

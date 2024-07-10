@@ -1,20 +1,22 @@
+use db::init_db;
+
 #[macro_use]
 extern crate rocket;
 
+mod db;
 mod fairing;
+mod forward;
 mod guard;
 mod params;
 mod utils;
-mod forward;
-
-#[get("/")]
-fn index(_auth: guard::Auth) -> String {
-  "HELLO WORLD".to_string()
-}
+mod collection;
+mod api;
 
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
+  init_db().await.unwrap();
   rocket::build()
+    .attach(fairing::JsonResponse)
     .attach(fairing::Gzip)
-    .mount("/", routes![index])
+    .mount("/role", api::role::routes())
 }
