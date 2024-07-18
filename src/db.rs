@@ -17,5 +17,6 @@ pub fn get_db() -> mongodb::Database {
   MONGO_CLIENT
     .get()
     .expect("MongoDB client is not initialized")
+    .clone()
     .database("aidh-config")
 }

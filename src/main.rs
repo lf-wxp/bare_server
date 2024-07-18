@@ -9,7 +9,10 @@ mod forward;
 mod guard;
 mod params;
 mod utils;
+#[macro_use]
 mod collection;
+
+mod document;
 mod api;
 
 #[launch]
