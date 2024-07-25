@@ -1,27 +1,32 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ActionCategory {
+pub struct IdleTransition {
   role: String,
-  name: String,
+  value: String,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Action {
+pub struct Idle {
   role: String,
   name: String,
   value: String,
+  color: String,
   static_image: String,
   motion_image: String,
-  duration: f32,
-  category: String, 
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
-  associated_idle: String,
-  support_pointer: bool,
-  pointer_start: i8, 
-  pointer_end: i8, 
-  support_mirror: bool, 
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IdleMapping {
+  role: String,
+  start: String, 
+  end: String,
+  transition: String,
+  create_timestamp: Option<i64>,
+  update_timestamp: Option<i64>,
+}
+

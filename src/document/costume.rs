@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ActionCategory {
+pub struct CostumeCategory {
   role: String,
   name: String,
   create_timestamp: Option<i64>,
@@ -9,19 +9,12 @@ pub struct ActionCategory {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Action {
+pub struct Costume {
   role: String,
   name: String,
   value: String,
-  static_image: String,
-  motion_image: String,
-  duration: f32,
+  image: String,
   category: String, 
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
-  associated_idle: String,
-  support_pointer: bool,
-  pointer_start: i8, 
-  pointer_end: i8, 
-  support_mirror: bool, 
 }
