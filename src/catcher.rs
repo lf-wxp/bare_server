@@ -1,16 +1,21 @@
-use rocket::{serde::json::Json, Catcher, Request};
+use rocket::{Catcher, Request};
 
 #[catch(460)]
-fn data_field_missing(req: &Request<'_>) -> Json<Option<String>> {
+fn data_field_missing(req: &Request<'_>) -> String {
   let data = req.local_cache(|| "".to_string());
-  Json(Some(format!("missing {data} field")))
+  format!("missing {data} field")
 }
 
 #[catch(461)]
-fn data_parse_error(req: &Request<'_>) -> Json<Option<String>> {
-  Json(Some("parse data error".to_string()))
+fn data_parse_error(_: &Request<'_>) -> String {
+  "parse data error".to_string()
+}
+
+#[catch(default)]
+fn default(_: &Request<'_>) -> String {
+  "internal error".to_string()
 }
 
 pub fn catcher() -> Vec<Catcher> {
-  catchers![data_field_missing, data_parse_error]
+  catchers![data_field_missing, data_parse_error, default] 
 }

@@ -14,6 +14,7 @@ mod collection;
 mod api;
 mod catcher;
 mod document;
+mod responder;
 
 #[launch]
 async fn rocket() -> _ {

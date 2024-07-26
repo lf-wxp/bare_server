@@ -4,10 +4,11 @@ use rocket::{
   http::ContentType,
   Request, Response,
 };
-use serde::Serialize;
 use nanoid::nanoid;
-use serde_json::{to_string, Value};
+use serde_json::to_string;
 use std::io::{Cursor, Write};
+
+use crate::responder::ApiResponse;
 pub struct Gzip;
 
 #[rocket::async_trait]
@@ -34,14 +35,6 @@ impl Fairing for Gzip {
     }
   }
 }
-
-#[derive(Serialize)]
-pub struct ApiResponse<T> {
-  pub ret_code: u16,
-  pub ret_msg: String,
-  pub response: Option<T>,
-  pub session_id: String,
-}
 pub struct JsonResponse;
 
 #[rocket::async_trait]
@@ -54,26 +47,19 @@ impl Fairing for JsonResponse {
   }
   async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
     let code = response.status().code;
-    if response.content_type() != Some(ContentType::JSON) {
+    if code == 200 || code == 401 {
       return;
     }
     let session_id = request.query_value("session_id").unwrap_or(Ok(nanoid!())).unwrap();
     let body_string = response.body_mut().to_string().await.unwrap();
-    let body_json: Value = serde_json::from_str(&body_string).unwrap();
-    let (message, data) = if code == 200 {
-      ("success".to_string(), Some(body_json))
-    } else {
-      (body_json.as_str().unwrap().to_string(), None)
-    };
-    let ret_code = if code == 200 { 0 } else { code };
-    let api_response = ApiResponse {
-      ret_code,
-      ret_msg:message,
-      response: data,
+    let api_response: ApiResponse<String> = ApiResponse {
+      ret_code: code,
+      ret_msg: body_string,
+      response: None,
       session_id,
     };
     let api_response_string = to_string(&api_response).unwrap();
-    *response = rocket::Response::build()
+    *response = Response::build()
       .header(ContentType::JSON)
       .sized_body(api_response_string.len(), Cursor::new(api_response_string))
       .finalize();

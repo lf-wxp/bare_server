@@ -1,14 +1,12 @@
 use chrono::Utc;
-use futures::TryStreamExt;
+use futures::StreamExt;
 use mongodb::{
-  bson::{self, doc, from_bson, from_document, to_document, Bson, Document},
-  error::{Error, Result},
-  results::InsertOneResult,
-  Collection,
+  bson::{self, doc, from_document, to_document, Document},
+  error, Collection,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, Value};
-use std::io;
+use std::{fmt::Debug, io};
 
 pub mod actions;
 pub mod algorithms;
@@ -22,6 +20,8 @@ pub mod timbres;
 
 pub use roles::*;
 
+use crate::responder::{DocumentActionResponder, FindAllData};
+
 #[derive(Debug, FromForm)]
 pub struct Pagination {
   page: Option<usize>,
@@ -29,22 +29,23 @@ pub struct Pagination {
   filter: Option<String>,
 }
 
-pub trait DocWrap: Serialize + for<'de> Deserialize<'de> + Send + Sync {}
-impl<T> DocWrap for T where T: Serialize + for<'de> Deserialize<'de> + Send + Sync {}
+pub trait DocWrap: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
+impl<T> DocWrap for T where T: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
 
 pub trait CollectionOperations {
   type Doc: DocWrap;
   fn collection(&self) -> &Collection<Self::Doc>;
-  async fn insert(&self, item: &mut Self::Doc) -> Result<InsertOneResult> {
+  async fn insert(&self, item: &mut Self::Doc) -> DocumentActionResponder<Self::Doc> {
     let now = Utc::now().timestamp();
     let mut doc = to_document(&item).unwrap();
     doc.insert("create_timestamp", now);
     doc.insert("update_timestamp", now);
     let doc = from_document::<Self::Doc>(doc).unwrap();
-    self.collection().insert_one(doc).await
+    let result = self.collection().insert_one(doc).await;
+    DocumentActionResponder::Insert(result)
   }
 
-  async fn list(&self, pagination: Pagination) -> Result<Vec<Self::Doc>> {
+  async fn list(&self, pagination: Pagination) -> DocumentActionResponder<Self::Doc> {
     let page = pagination.page.unwrap_or(1);
     let size = pagination.size.unwrap_or(10000);
     let skip = (page - 1) * size;
@@ -60,36 +61,75 @@ pub trait CollectionOperations {
       None => doc! {},
     };
     let pipeline = vec![
-      doc! { "$match": filter},
-      doc! { "$skip": skip as f32},
-      doc! { "$limit": size as f32 },
+      doc! {
+        "$match": filter
+      },
+      doc! {
+        "$facet": {
+          "list": [
+            { "$skip": skip as f32},
+            { "$limit": size as f32 },
+          ],
+          "count": [
+            { "$count": "count"},
+          ]
+        }
+      },
+      doc! {
+        "$project": {
+          "list": 1,
+          "count": { "$arrayElemAt": [ "$count", 0 ] },
+        }
+      },
     ];
-    self
-      .collection()
-      .aggregate(pipeline)
-      .await?
-      .and_then(|doc_result| async move {
-        from_bson(Bson::Document(doc_result))
-          .map_err(|e| Error::from(io::Error::new(io::ErrorKind::Other, e)))
-      })
-      .try_collect::<Vec<Self::Doc>>()
-      .await
+    let result = self.collection().aggregate(pipeline).await;
+    let result = match result {
+      Ok(mut cursor) => {
+        let result = cursor.next().await;
+        if let Some(Ok(doc)) = result {
+          let list: Vec<Self::Doc> = doc
+            .get_array("list")
+            .map(|bson_array| {
+              bson_array
+                .iter()
+                .map(|bson| bson::from_bson(bson.clone()))
+                .collect::<Result<Vec<Self::Doc>, _>>()
+            })
+            .unwrap_or(Ok(Vec::new()))
+            .unwrap_or_default();
+
+          let count = doc
+            .get_document("count")
+            .and_then(|count_doc| count_doc.get_i32("count"))
+            .unwrap_or(0) as usize;
+          Ok(FindAllData { list, count })
+        } else {
+          Err(error::Error::from(io::Error::new(
+            io::ErrorKind::Other,
+            "Failed to get result",
+          )))
+        }
+      }
+      Err(e) => Err(e),
+    };
+
+    DocumentActionResponder::FindAll(result)
   }
 
-  async fn find_one(&self, filter: Document) -> Result<Option<Self::Doc>> {
-    self.collection().find_one(filter).await
+  async fn find_one(&self, filter: Document) -> DocumentActionResponder<Self::Doc> {
+    DocumentActionResponder::FindOne(self.collection().find_one(filter).await)
   }
 
-  async fn update(&self, filter: Document, item: Self::Doc) -> Result<Option<Self::Doc>> {
+  async fn update(&self, filter: Document, item: Self::Doc) -> DocumentActionResponder<Self::Doc> {
     let now = Utc::now().timestamp();
     let mut item = to_document(&item).unwrap();
     item.insert("update_timestamp", now);
     let item = doc! { "$set": item };
-    self.collection().find_one_and_update(filter, item).await
+    DocumentActionResponder::Update(self.collection().find_one_and_update(filter, item).await)
   }
 
-  async fn delete(&self, filter: Document) -> Result<Option<Self::Doc>> {
-    self.collection().find_one_and_delete(filter).await
+  async fn delete(&self, filter: Document) -> DocumentActionResponder<Self::Doc> {
+    DocumentActionResponder::Delete(self.collection().find_one_and_delete(filter).await)
   }
 }
 

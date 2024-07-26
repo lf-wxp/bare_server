@@ -1,34 +1,35 @@
-use mongodb::bson::{doc, Bson};
+use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{CollectionOperations, Roles, Pagination},
+  collection::{CollectionOperations, Pagination, Roles},
   document::Role,
   guard,
+  responder::DocumentActionResponder,
 };
 
 #[get("/?<pagination..>")]
-pub async fn get_role_list(_auth: guard::Auth, pagination: Pagination) -> Json<Vec<Role>> {
+pub async fn get_role_list(
+  _auth: guard::Auth,
+  pagination: Pagination,
+) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  let list = roles.list(pagination).await.unwrap();
-  Json(list)
+  roles.list(pagination).await
 }
 #[get("/<role>")]
-pub async fn get_role(_auth: guard::Auth, role: &str) -> Json<Option<Role>> {
+pub async fn get_role(_auth: guard::Auth, role: &str) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  let role = roles
-    .find_one(doc! { "role": role })
-    .await
-    .unwrap();
-  Json(role)
+  roles.find_one(doc! { "role": role }).await
 }
 
 #[post("/", format = "json", data = "<role>")]
-pub async fn add_role(_auth: guard::Auth, role: guard::CustomJson<Role> ) -> Json<Bson> {
+pub async fn add_role(
+  _auth: guard::Auth,
+  role: guard::CustomJson<Role>,
+) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
   let mut role = (*role).clone();
-  let role = roles.insert(&mut role).await.unwrap();
-  Json(role.inserted_id)
+  roles.insert(&mut role).await
 }
 
 #[put("/<role_id>", format = "json", data = "<role>")]
@@ -36,22 +37,17 @@ pub async fn update_role(
   _auth: guard::Auth,
   role_id: &str,
   role: Json<Role>,
-) -> Json<Option<Role>> {
+) -> DocumentActionResponder<Role> {
   print!("update {:?}, {:?}", role, doc! {  "role": role_id });
   let roles = Roles::new();
   let role = (*role).clone();
-  let role = roles
-    .update(doc! { "role": role_id }, role)
-    .await
-    .unwrap();
-  Json(role)
+  roles.update(doc! { "role": role_id }, role).await
 }
 
 #[delete("/<role>")]
-pub async fn delete_role(_auth: guard::Auth, role: &str) -> Json<Option<Role>> {
+pub async fn delete_role(_auth: guard::Auth, role: &str) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  let role = roles.delete(doc! { "role": role }).await.unwrap();
-  Json(role)
+  roles.delete(doc! { "role": role }).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {
