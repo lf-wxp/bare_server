@@ -1,20 +1,22 @@
+use std::collections::HashMap;
+
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{CollectionOperations, Pagination, Roles},
+  collection::{CollectionOperations, Roles},
   document::Role,
   guard,
   responder::DocumentActionResponder,
 };
 
-#[get("/?<pagination..>")]
+#[get("/?<filter..>")]
 pub async fn get_role_list(
   _auth: guard::Auth,
-  pagination: Pagination,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  roles.list(pagination).await
+  roles.list(filter).await
 }
 #[get("/<role>")]
 pub async fn get_role(_auth: guard::Auth, role: &str) -> DocumentActionResponder<Role> {

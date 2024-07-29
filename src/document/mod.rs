@@ -12,6 +12,7 @@ pub mod idle;
 pub mod material;
 pub mod role;
 pub mod timbre;
+pub mod scene;
 
 pub use action::*;
 pub use algorithm::*;
@@ -22,6 +23,7 @@ pub use idle::*;
 pub use material::*;
 pub use role::*;
 pub use timbre::*;
+pub use scene::*;
 
 fn validate_required(value: &Value) -> Result<(), ValidationError> {
   match value {

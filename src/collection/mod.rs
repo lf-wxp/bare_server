@@ -5,8 +5,7 @@ use mongodb::{
   error, Collection,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{from_str, Value};
-use std::{fmt::Debug, io};
+use std::{collections::HashMap, fmt::Debug, io};
 
 pub mod actions;
 pub mod algorithms;
@@ -16,18 +15,15 @@ pub mod hairdos;
 pub mod idles;
 pub mod materials;
 pub mod roles;
+pub mod scenes;
 pub mod timbres;
 
 pub use roles::*;
 
-use crate::responder::{DocumentActionResponder, FindAllData};
-
-#[derive(Debug, FromForm)]
-pub struct Pagination {
-  page: Option<usize>,
-  size: Option<usize>,
-  filter: Option<String>,
-}
+use crate::{
+  filter::Filter,
+  responder::{DocumentActionResponder, FindAllData},
+};
 
 pub trait DocWrap: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
 impl<T> DocWrap for T where T: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
@@ -45,30 +41,34 @@ pub trait CollectionOperations {
     DocumentActionResponder::Insert(result)
   }
 
-  async fn list(&self, pagination: Pagination) -> DocumentActionResponder<Self::Doc> {
-    let page = pagination.page.unwrap_or(1);
-    let size = pagination.size.unwrap_or(10000);
-    let skip = (page - 1) * size;
-    let filter = match pagination.filter {
-      Some(filter_str) => match from_str::<Value>(&filter_str) {
-        Ok(json_value) => bson::to_bson(&json_value)
-          .unwrap()
-          .as_document()
-          .unwrap()
-          .clone(),
-        Err(_) => doc! {},
-      },
-      None => doc! {},
-    };
+  async fn list(&self, filter: HashMap<&str, &str>) -> DocumentActionResponder<Self::Doc> {
+    // let page = pagination.page.unwrap_or(1);
+    // let size = pagination.size.unwrap_or(10000);
+    // let skip = (page - 1) * size;
+    // let filter = match pagination.filter {
+    //   Some(filter_str) => match from_str::<Value>(&filter_str) {
+    //     Ok(json_value) => bson::to_bson(&json_value)
+    //       .unwrap()
+    //       .as_document()
+    //       .unwrap()
+    //       .clone(),
+    //     Err(_) => doc! {},
+    //   },
+    //   None => doc! {},
+    // };
+    let (query, sort, skip, limit) = filter.parse();
     let pipeline = vec![
       doc! {
-        "$match": filter
+        "$match":query
+      },
+      doc! {
+          "$sort": sort,
       },
       doc! {
         "$facet": {
           "list": [
-            { "$skip": skip as f32},
-            { "$limit": size as f32 },
+            { "$skip": skip},
+            { "$limit": limit },
           ],
           "count": [
             { "$count": "count"},
