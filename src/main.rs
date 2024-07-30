@@ -25,5 +25,5 @@ async fn rocket() -> _ {
     .attach(fairing::JsonResponse)
     .attach(fairing::Gzip)
     .register("/", catcher::catcher())
-    .mount("/role", api::role::routes())
+    .mount("/", api::routes())
 }

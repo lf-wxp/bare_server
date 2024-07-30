@@ -17,8 +17,19 @@ pub mod materials;
 pub mod roles;
 pub mod scenes;
 pub mod timbres;
+pub mod texts;
 
 pub use roles::*;
+pub use actions::*;
+pub use cameras::*;
+pub use costumes::*;
+pub use hairdos::*;
+pub use idles::*;
+pub use materials::*;
+pub use scenes::*;
+pub use timbres::*;
+pub use texts::*;
+pub use algorithms::*;
 
 use crate::{
   filter::Filter,
@@ -41,21 +52,7 @@ pub trait CollectionOperations {
     DocumentActionResponder::Insert(result)
   }
 
-  async fn list(&self, filter: HashMap<&str, &str>) -> DocumentActionResponder<Self::Doc> {
-    // let page = pagination.page.unwrap_or(1);
-    // let size = pagination.size.unwrap_or(10000);
-    // let skip = (page - 1) * size;
-    // let filter = match pagination.filter {
-    //   Some(filter_str) => match from_str::<Value>(&filter_str) {
-    //     Ok(json_value) => bson::to_bson(&json_value)
-    //       .unwrap()
-    //       .as_document()
-    //       .unwrap()
-    //       .clone(),
-    //     Err(_) => doc! {},
-    //   },
-    //   None => doc! {},
-    // };
+  async fn list_pure(&self, filter: &HashMap<&str, &str>) -> error::Result<FindAllData<Self::Doc>>{
     let (query, sort, skip, limit) = filter.parse();
     let pipeline = vec![
       doc! {
@@ -83,7 +80,7 @@ pub trait CollectionOperations {
       },
     ];
     let result = self.collection().aggregate(pipeline).await;
-    let result = match result {
+    match result {
       Ok(mut cursor) => {
         let result = cursor.next().await;
         if let Some(Ok(doc)) = result {
@@ -111,8 +108,11 @@ pub trait CollectionOperations {
         }
       }
       Err(e) => Err(e),
-    };
+    }
+  }
 
+  async fn list(&self, filter: &HashMap<&str, &str>) -> DocumentActionResponder<Self::Doc> {
+    let result = self.list_pure(&filter).await;
     DocumentActionResponder::FindAll(result)
   }
 
@@ -176,4 +176,18 @@ macro_rules! collection_wrapper {
 
 pub async fn create_db_index() {
   Roles::create_unique_index().await.unwrap();
+  Actions::create_unique_index().await.unwrap();
+  Algorithms::create_unique_index().await.unwrap();
+  Cameras::create_unique_index().await.unwrap();
+  Hairdos::create_unique_index().await.unwrap();
+  Costumes::create_unique_index().await.unwrap();
+  CostumeCategories::create_unique_index().await.unwrap();
+  Idles::create_unique_index().await.unwrap();
+  IdleTransitions::create_unique_index().await.unwrap();
+  IdleMappings::create_unique_index().await.unwrap();
+  Materials::create_unique_index().await.unwrap();
+  Texts::create_unique_index().await.unwrap();
+  Bubbles::create_unique_index().await.unwrap();
+  Scenes::create_unique_index().await.unwrap();
+  Timbres::create_unique_index().await.unwrap();
 }

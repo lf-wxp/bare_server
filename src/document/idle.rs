@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+use super::LinkRole;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IdleTransition {
   role: String,
   value: String,
@@ -8,7 +10,7 @@ pub struct IdleTransition {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Idle {
   role: String,
   name: String,
@@ -20,13 +22,28 @@ pub struct Idle {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IdleMapping {
   role: String,
-  start: String, 
+  start: String,
   end: String,
   transition: String,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
 
+impl LinkRole for Idle {
+  fn role(&self) -> String {
+    self.role.clone()
+  }
+}
+impl LinkRole for IdleMapping {
+  fn role(&self) -> String {
+    self.role.clone()
+  }
+}
+impl LinkRole for IdleTransition {
+  fn role(&self) -> String {
+    self.role.clone()
+  }
+}

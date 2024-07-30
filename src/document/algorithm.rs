@@ -11,7 +11,7 @@ pub enum AlgType {
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Alg {
+pub struct Algorithm {
   role: String,
   value: AlgType,
   options: Vec<Option<String>>,

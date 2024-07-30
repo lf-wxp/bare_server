@@ -29,7 +29,7 @@ pub enum ReserveKey {
 impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
   fn parse(&self) -> (Document, Document, f32, f32) {
     let mut query = doc! {};
-    let mut sort = doc! {};
+    let mut sort = doc! { "create_timestamp": -1 };
     let mut page = 1f32;
     let mut limit = 10f32;
 

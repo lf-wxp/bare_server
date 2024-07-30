@@ -1,3 +1,3 @@
-use crate::{collection_wrapper, document::Alg};
+use crate::{collection_wrapper, document::Algorithm};
 
-collection_wrapper!(Algs, Alg, "alg", ["value", "role"]);
+collection_wrapper!(Algorithms, Algorithm, "alg", ["value", "role"]);
