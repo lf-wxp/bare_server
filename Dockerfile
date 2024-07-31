@@ -1,4 +1,4 @@
-FROM rust:1.79.0-slim
+FROM rust:1.79.0
 WORKDIR /app
 ADD . .
 ENV ROCKET_PORT=8080
