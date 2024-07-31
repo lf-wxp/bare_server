@@ -1,3 +1,4 @@
+use config::set_config;
 use db::init_db;
 
 #[macro_use]
@@ -16,9 +17,11 @@ mod catcher;
 mod document;
 mod responder;
 mod filter;
+mod config;
 
 #[launch]
 async fn rocket() -> _ {
+  set_config();
   init_db().await.unwrap();
   collection::create_db_index().await;
   rocket::build()

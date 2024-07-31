@@ -9,6 +9,7 @@ use serde_json::to_string;
 use std::io::{Cursor, Write};
 
 use crate::responder::ApiResponse;
+
 pub struct Gzip;
 
 #[rocket::async_trait]

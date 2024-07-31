@@ -1,4 +1,4 @@
 [tasks.dev]
-args = ["run", "--", "-b", "http://36.155.204.202", "-p", "3f3169cb"]
+args = ["run", "--features", "dev"]
 command = "cargo"
 watch = true

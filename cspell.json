@@ -1,1 +1,9 @@
-{"language":"en","words":["bson"],"flagWords":[],"version":"0.2"}
+{
+    "language": "en",
+    "words": [
+        "bson",
+        "NONGO"
+    ],
+    "flagWords": [],
+    "version": "0.2"
+}

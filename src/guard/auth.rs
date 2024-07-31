@@ -13,6 +13,9 @@ impl<'r> FromRequest<'r> for Auth {
   type Error = ();
 
   async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+    #[cfg(feature = "dev")]
+    return  Outcome::Success(Auth {});
+
     let cookies = get_cookies(request);
     let response = match forward::who(cookies.clone()).await {
       Ok(response) => response,
