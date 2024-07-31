@@ -1,10 +1,10 @@
 use flate2::{write::GzEncoder, Compression};
+use nanoid::nanoid;
 use rocket::{
   fairing::{Fairing, Info, Kind},
   http::ContentType,
-  Request, Response,
+  Data, Request, Response,
 };
-use nanoid::nanoid;
 use serde_json::to_string;
 use std::io::{Cursor, Write};
 
@@ -50,7 +50,10 @@ impl Fairing for JsonResponse {
     if code == 200 || code == 401 {
       return;
     }
-    let session_id = request.query_value("session_id").unwrap_or(Ok(nanoid!())).unwrap();
+    let session_id = request
+      .query_value("session_id")
+      .unwrap_or(Ok(nanoid!()))
+      .unwrap();
     let body_string = response.body_mut().to_string().await.unwrap();
     let api_response: ApiResponse<String> = ApiResponse {
       ret_code: code,
@@ -63,5 +66,24 @@ impl Fairing for JsonResponse {
       .header(ContentType::JSON)
       .sized_body(api_response_string.len(), Cursor::new(api_response_string))
       .finalize();
+  }
+}
+
+pub struct Log;
+
+#[rocket::async_trait]
+impl Fairing for Log {
+  fn info(&self) -> Info {
+    Info {
+      name: "Logging Fairing",
+      kind: Kind::Response | Kind::Request,
+    }
+  }
+  async fn on_request(&self, request: &mut Request<'_>, _data: &mut Data<'_>) {
+    println!("Incoming request: {:?}", request);
+  }
+
+  async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+    println!("Response to {}: {:?}", request, response);
   }
 }

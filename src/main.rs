@@ -22,6 +22,7 @@ async fn rocket() -> _ {
   init_db().await.unwrap();
   collection::create_db_index().await;
   rocket::build()
+    .attach(fairing::Log)
     .attach(fairing::JsonResponse)
     .attach(fairing::Gzip)
     .register("/", catcher::catcher())
