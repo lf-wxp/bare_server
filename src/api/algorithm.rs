@@ -40,7 +40,6 @@ pub async fn update_item(
   algorithm_id: &str,
   algorithm: Json<Algorithm>,
 ) -> DocumentActionResponder<Algorithm> {
-  print!("update {:?}, {:?}", algorithm, doc! {  "value": algorithm_id });
   let algorithms = Algorithms::new();
   let algorithm = (*algorithm).clone();
   algorithms.update(doc! { "value": algorithm_id }, algorithm).await

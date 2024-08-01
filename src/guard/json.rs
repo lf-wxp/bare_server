@@ -49,7 +49,6 @@ impl<'r, T: Deserialize<'r>> FromData<'r> for CustomJson<T> {
         Outcome::Error((Status::PayloadTooLarge, Error::Io(e)))
       }
       Err(Error::Parse(s, e)) if e.classify() == serde_json::error::Category::Data => {
-        print!("{}", e);
         let re = Regex::new(r"missing field `(.+?)`").unwrap();
         let err = e.to_string();
         let cap = &re.captures(&err).unwrap()[1];
