@@ -18,6 +18,7 @@ pub mod roles;
 pub mod scenes;
 pub mod timbres;
 pub mod texts;
+pub mod favorite_actions;
 
 pub use roles::*;
 pub use actions::*;
@@ -30,10 +31,10 @@ pub use scenes::*;
 pub use timbres::*;
 pub use texts::*;
 pub use algorithms::*;
+pub use favorite_actions::*;
 
 use crate::{
-  filter::Filter,
-  responder::{DocumentActionResponder, FindAllData},
+  filter::Filter, responder::{DocumentActionResponder, FindAllData}
 };
 
 pub trait DocWrap: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
@@ -190,4 +191,5 @@ pub async fn create_db_index() {
   Bubbles::create_unique_index().await.unwrap();
   Scenes::create_unique_index().await.unwrap();
   Timbres::create_unique_index().await.unwrap();
+  FavoriteActions::create_unique_index().await.unwrap();
 }

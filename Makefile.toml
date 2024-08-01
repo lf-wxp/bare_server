@@ -1,4 +1,4 @@
 [tasks.dev]
-args = ["run", "--features", "dev"]
+args = ["run", "--", "-c", "config"]
 command = "cargo"
 watch = true

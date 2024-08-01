@@ -9,6 +9,7 @@ pub mod text;
 pub mod timbre;
 pub mod algorithm;
 pub mod idle;
+pub mod favorite_action;
 
 pub fn routes() -> Vec<rocket::Route> {
   let mut routes = routes![];
@@ -24,6 +25,7 @@ pub fn routes() -> Vec<rocket::Route> {
     scene::routes(),
     algorithm::routes(),
     idle::routes(),
+    favorite_action::routes(),
   ] {
     routes.extend(route);
   }

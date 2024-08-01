@@ -11,6 +11,7 @@ pub mod role;
 pub mod scene;
 pub mod text;
 pub mod timbre;
+pub mod favorite_action;
 
 pub use action::*;
 pub use algorithm::*;
@@ -23,6 +24,7 @@ pub use role::*;
 pub use scene::*;
 pub use text::*;
 pub use timbre::*;
+pub use favorite_action::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Location {
