@@ -5,10 +5,20 @@ use rocket::serde::json::Json;
 
 use crate::{
   collection::{Actions, CollectionOperations},
-  document::Action,
+  document::{Action, ActionWithCategory},
   guard,
   responder::DocumentActionResponder,
 };
+
+#[get("/action_aggregate?<filter..>")]
+pub async fn get_aggregate_list(
+  _auth: guard::Auth,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<ActionWithCategory> {
+  let actions = Actions::new();
+  let data = actions.aggregate(&filter).await;
+  DocumentActionResponder::FindAll(data)
+}
 
 #[get("/action?<filter..>")]
 pub async fn get_list(
@@ -52,5 +62,5 @@ pub async fn delete_item(_auth: guard::Auth, action: &str) -> DocumentActionResp
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-  routes![get_item, get_list, add_item, update_item, delete_item]
+  routes![get_item, get_list, get_aggregate_list, add_item, update_item, delete_item]
 }

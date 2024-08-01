@@ -4,8 +4,8 @@ use super::LinkRole;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ActionCategory {
-  role: String,
-  name: String,
+  pub role: String,
+  pub name: String,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
@@ -18,7 +18,7 @@ pub struct Action {
   static_image: String,
   motion_image: String,
   duration: f32,
-  category: String,
+  pub category: String,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
   associated_idle: String,
@@ -26,6 +26,13 @@ pub struct Action {
   pointer_start: i8,
   pointer_end: i8,
   support_mirror: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ActionWithCategory {
+  pub role: String,
+  pub category: String,
+  pub action: Vec<Action>,
 }
 
 impl LinkRole for ActionCategory {
@@ -38,3 +45,10 @@ impl LinkRole for Action {
     self.role.clone()
   }
 }
+impl LinkRole for ActionWithCategory {
+  fn role(&self) -> String {
+    self.role.clone()
+  }
+}
+
+
