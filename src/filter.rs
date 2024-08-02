@@ -71,6 +71,7 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
               "lte" => doc! { "$lte": value_str },
               "lt" => doc! { "$lt": value_str },
               "contains" => doc! { "$regex": value_str, "$options": "i" },
+              "equal" => doc! { "$eq": value_str },
               _ => doc! {},
             };
             query.insert(field_name, condition);
