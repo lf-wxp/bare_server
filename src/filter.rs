@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Debug;
 pub trait Filter {
-  fn parse(&self) -> (Document, Document, f32, f32);
+  fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32);
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -27,7 +27,7 @@ pub enum ReserveKey {
 }
 
 impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
-  fn parse(&self) -> (Document, Document, f32, f32) {
+  fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32) {
     let mut query = doc! {};
     let mut sort = doc! { "create_timestamp": -1 };
     let mut page = 1f32;
@@ -64,16 +64,17 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
             &key_str[..key_str.len() - operator.len() - 1]
           };
 
-          let condition = match operator {
-            "gte" => doc! { "$gte": value_str },
-            "gt" => doc! { "$gt": value_str },
-            "lte" => doc! { "$lte": value_str },
-            "lt" => doc! { "$lt": value_str },
-            "contains" => doc! { "$regex": value_str, "$options": "i" },
-            _ => doc! {},
-          };
-
-          query.insert(field_name, condition);
+          if fields.contains(&field_name) {
+            let condition = match operator {
+              "gte" => doc! { "$gte": value_str },
+              "gt" => doc! { "$gt": value_str },
+              "lte" => doc! { "$lte": value_str },
+              "lt" => doc! { "$lt": value_str },
+              "contains" => doc! { "$regex": value_str, "$options": "i" },
+              _ => doc! {},
+            };
+            query.insert(field_name, condition);
+          }
         }
       }
     }

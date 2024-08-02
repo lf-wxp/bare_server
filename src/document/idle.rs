@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::LinkRole;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct IdleTransition {
   role: String,
   value: String,
@@ -10,7 +11,7 @@ pub struct IdleTransition {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Idle {
   role: String,
   name: String,
@@ -22,7 +23,7 @@ pub struct Idle {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct IdleMapping {
   role: String,
   start: String,

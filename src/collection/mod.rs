@@ -6,39 +6,47 @@ use mongodb::{
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug, io};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 pub mod actions;
 pub mod algorithms;
 pub mod cameras;
 pub mod costumes;
+pub mod favorite_actions;
 pub mod hairdos;
 pub mod idles;
 pub mod materials;
 pub mod roles;
 pub mod scenes;
-pub mod timbres;
 pub mod texts;
-pub mod favorite_actions;
+pub mod timbres;
 
-pub use roles::*;
 pub use actions::*;
+pub use algorithms::*;
 pub use cameras::*;
 pub use costumes::*;
+pub use favorite_actions::*;
 pub use hairdos::*;
 pub use idles::*;
 pub use materials::*;
+pub use roles::*;
 pub use scenes::*;
-pub use timbres::*;
 pub use texts::*;
-pub use algorithms::*;
-pub use favorite_actions::*;
+pub use timbres::*;
 
 use crate::{
-  filter::Filter, responder::{DocumentActionResponder, FindAllData}
+  filter::Filter,
+  responder::{DocumentActionResponder, FindAllData},
 };
 
-pub trait DocWrap: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
-impl<T> DocWrap for T where T: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync {}
+pub trait DocWrap:
+  Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync + FieldNamesAsSlice
+{
+}
+impl<T> DocWrap for T where
+  T: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync + FieldNamesAsSlice
+{
+}
 
 pub trait CollectionOperations {
   type Doc: DocWrap;
@@ -53,8 +61,8 @@ pub trait CollectionOperations {
     DocumentActionResponder::Insert(result)
   }
 
-  async fn list_pure(&self, filter: &HashMap<&str, &str>) -> error::Result<FindAllData<Self::Doc>>{
-    let (query, sort, skip, limit) = filter.parse();
+  async fn list_pure(&self, filter: &HashMap<&str, &str>) -> error::Result<FindAllData<Self::Doc>> {
+    let (query, sort, skip, limit) = filter.parse(Self::Doc::FIELD_NAMES_AS_SLICE);
     let pipeline = vec![
       doc! {
         "$match":query

@@ -21,4 +21,5 @@ rocket-validation = "0.2.0"
 serde = "1.0.203"
 serde_json = "1.0.117"
 sha2 = "0.10.8"
+struct-field-names-as-array = "0.3.0"
 validator = { version = "0.16.1", features = ["derive"]}

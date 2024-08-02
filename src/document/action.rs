@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::LinkRole;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, FieldNamesAsSlice)]
 pub struct ActionCategory {
   pub role: String,
   pub name: String,
@@ -10,7 +11,7 @@ pub struct ActionCategory {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Action {
   role: String,
   name: String,
@@ -28,7 +29,7 @@ pub struct Action {
   support_mirror: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct ActionWithCategory {
   pub role: String,
   pub category: String,

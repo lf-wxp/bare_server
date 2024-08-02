@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sprite {
@@ -7,7 +8,7 @@ pub struct Sprite {
   top_height: i64,
   bottom_height: i64,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Bubble {
   name: String,
   value: String,
@@ -37,7 +38,7 @@ pub struct Shadow {
   distance: i64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Text {
   value: String,
   color: String,

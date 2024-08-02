@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::LinkRole;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct CostumeCategory {
   pub role: String,
   pub name: String,
@@ -10,7 +11,7 @@ pub struct CostumeCategory {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Costume {
   role: String,
   name: String,
@@ -21,7 +22,7 @@ pub struct Costume {
   update_timestamp: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct CostumeWithCategory {
   pub role: String,
   pub category: String,

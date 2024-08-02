@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Location, Timbre};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Role {
   pub role: String,
   name: String,
@@ -18,7 +19,7 @@ pub struct Role {
   idle_expression_support: bool,
   idle_expression_smile: Option<String>,
 }
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct RoleAggregate {
   role: String,
   name: String,
