@@ -3,7 +3,7 @@ use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::LinkRole;
 
-#[derive(Serialize, Deserialize, Debug, FieldNamesAsSlice)]
+#[derive(Serialize, Deserialize, Debug, FieldNamesAsSlice, Clone)]
 pub struct ActionCategory {
   pub role: String,
   pub name: String,
@@ -24,9 +24,11 @@ pub struct Action {
   update_timestamp: Option<i64>,
   associated_idle: String,
   support_pointer: bool,
-  pointer_start: i8,
-  pointer_end: i8,
+  pointer_start: Option<i8>,
+  pointer_end: Option<i8>,
+  pointer_key: Option<i8>,
   support_mirror: bool,
+  support_mouth_animation: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]

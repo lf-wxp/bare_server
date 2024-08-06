@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{Materials, CollectionOperations},
+  collection::{CollectionOperations, Materials},
   document::Material,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,17 @@ pub async fn get_list(
   let materials = Materials::new();
   materials.list(&filter).await
 }
-#[get("/material/<material>")]
-pub async fn get_item(_auth: guard::Auth, material: &str) -> DocumentActionResponder<Material> {
+#[get("/material/<material>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  material: &str,
+
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
-  materials.find_one(doc! { "value": material }).await
+  materials
+    .find_one(doc! { "value": material }, &filter)
+    .await
 }
 
 #[post("/material", format = "json", data = "<material>")]
@@ -34,21 +41,32 @@ pub async fn add_item(
   materials.insert(&mut material).await
 }
 
-#[put("/material/<material_id>", format = "json", data = "<material>")]
+#[put(
+  "/material/<material_id>?<filter..>",
+  format = "json",
+  data = "<material>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   material_id: &str,
+  filter: HashMap<&str, &str>,
   material: Json<Material>,
 ) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
   let material = (*material).clone();
-  materials.update(doc! { "value": material_id }, material).await
+  materials
+    .update(doc! { "value": material_id }, &filter, material)
+    .await
 }
 
-#[delete("/material/<material>")]
-pub async fn delete_item(_auth: guard::Auth, material: &str) -> DocumentActionResponder<Material> {
+#[delete("/material/<material>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  material: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
-  materials.delete(doc! { "value": material }).await
+  materials.delete(doc! { "value": material }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

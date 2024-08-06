@@ -28,10 +28,14 @@ pub async fn get_list(
   let actions = Actions::new();
   actions.list(&filter).await
 }
-#[get("/action/<action>")]
-pub async fn get_item(_auth: guard::Auth, action: &str) -> DocumentActionResponder<Action> {
+#[get("/action/<action>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  action: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Action> {
   let actions = Actions::new();
-  actions.find_one(doc! { "value": action }).await
+  actions.find_one(doc! { "value": action }, &filter).await
 }
 
 #[post("/action", format = "json", data = "<action>")]
@@ -44,23 +48,37 @@ pub async fn add_item(
   actions.insert(&mut action).await
 }
 
-#[put("/action/<action_id>", format = "json", data = "<action>")]
+#[put("/action/<action_id>?<filter..>", format = "json", data = "<action>")]
 pub async fn update_item(
   _auth: guard::Auth,
   action_id: &str,
   action: Json<Action>,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Action> {
   let actions = Actions::new();
   let action = (*action).clone();
-  actions.update(doc! { "value": action_id }, action).await
+  actions
+    .update(doc! { "value": action_id }, &filter, action)
+    .await
 }
 
-#[delete("/action/<action>")]
-pub async fn delete_item(_auth: guard::Auth, action: &str) -> DocumentActionResponder<Action> {
+#[delete("/action/<action>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  action: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Action> {
   let actions = Actions::new();
-  actions.delete(doc! { "value": action }).await
+  actions.delete(doc! { "value": action }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-  routes![get_item, get_list, get_aggregate_list, add_item, update_item, delete_item]
+  routes![
+    get_item,
+    get_list,
+    get_aggregate_list,
+    add_item,
+    update_item,
+    delete_item
+  ]
 }

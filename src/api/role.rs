@@ -27,10 +27,14 @@ pub async fn get_list(
   let roles = Roles::new();
   roles.list(&filter).await
 }
-#[get("/role/<role>")]
-pub async fn get_item(_auth: guard::Auth, role: &str) -> DocumentActionResponder<Role> {
+#[get("/role/<role>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  role: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  roles.find_one(doc! { "role": role }).await
+  roles.find_one(doc! { "role": role }, &filter).await
 }
 
 #[post("/role", format = "json", data = "<role>")]
@@ -43,21 +47,26 @@ pub async fn add_item(
   roles.insert(&mut role).await
 }
 
-#[put("/role/<role_id>", format = "json", data = "<role>")]
+#[put("/role/<role_id>?<filter..>", format = "json", data = "<role>")]
 pub async fn update_item(
   _auth: guard::Auth,
   role_id: &str,
+  filter: HashMap<&str, &str>,
   role: Json<Role>,
 ) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
   let role = (*role).clone();
-  roles.update(doc! { "role": role_id }, role).await
+  roles.update(doc! { "role": role_id }, &filter, role).await
 }
 
-#[delete("/role/<role>")]
-pub async fn delete_item(_auth: guard::Auth, role: &str) -> DocumentActionResponder<Role> {
+#[delete("/role/<role>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  role: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
-  roles.delete(doc! { "role": role }).await
+  roles.delete(doc! { "role": role }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

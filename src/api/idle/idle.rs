@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{Idles, CollectionOperations},
+  collection::{CollectionOperations, Idles},
   document::Idle,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,14 @@ pub async fn get_list(
   let idles = Idles::new();
   idles.list(&filter).await
 }
-#[get("/idle/<idle>")]
-pub async fn get_item(_auth: guard::Auth, idle: &str) -> DocumentActionResponder<Idle> {
+#[get("/idle/<idle>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  idle: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Idle> {
   let idles = Idles::new();
-  idles.find_one(doc! { "value": idle }).await
+  idles.find_one(doc! { "value": idle }, &filter).await
 }
 
 #[post("/idle", format = "json", data = "<idle>")]
@@ -34,21 +38,26 @@ pub async fn add_item(
   idles.insert(&mut idle).await
 }
 
-#[put("/idle/<idle_id>", format = "json", data = "<idle>")]
+#[put("/idle/<idle_id>?<filter..>", format = "json", data = "<idle>")]
 pub async fn update_item(
   _auth: guard::Auth,
   idle_id: &str,
+  filter: HashMap<&str, &str>,
   idle: Json<Idle>,
 ) -> DocumentActionResponder<Idle> {
   let idles = Idles::new();
   let idle = (*idle).clone();
-  idles.update(doc! { "value": idle_id }, idle).await
+  idles.update(doc! { "value": idle_id }, &filter, idle).await
 }
 
-#[delete("/idle/<idle>")]
-pub async fn delete_item(_auth: guard::Auth, idle: &str) -> DocumentActionResponder<Idle> {
+#[delete("/idle/<idle>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  idle: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Idle> {
   let idles = Idles::new();
-  idles.delete(doc! { "value": idle }).await
+  idles.delete(doc! { "value": idle }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

@@ -30,14 +30,15 @@ pub async fn add_item(
   favorite_actions.insert(&mut favorite_action).await
 }
 
-#[delete("/favorite_action/<favorite_action>")]
+#[delete("/favorite_action/<favorite_action>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
   favorite_action: &str,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<FavoriteAction> {
   let favorite_actions = FavoriteActions::new();
   favorite_actions
-    .delete(doc! { "value": favorite_action })
+    .delete(doc! { "value": favorite_action }, &filter)
     .await
 }
 

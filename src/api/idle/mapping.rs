@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{IdleMappings, CollectionOperations},
+  collection::{CollectionOperations, IdleMappings},
   document::IdleMapping,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,16 @@ pub async fn get_list(
   let idle_mappings = IdleMappings::new();
   idle_mappings.list(&filter).await
 }
-#[get("/idle_mapping/<idle_mapping>")]
-pub async fn get_item(_auth: guard::Auth, idle_mapping: &str) -> DocumentActionResponder<IdleMapping> {
+#[get("/idle_mapping/<idle_mapping>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  idle_mapping: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
-  idle_mappings.find_one(doc! { "value": idle_mapping }).await
+  idle_mappings
+    .find_one(doc! { "value": idle_mapping }, &filter)
+    .await
 }
 
 #[post("/idle_mapping", format = "json", data = "<idle_mapping>")]
@@ -34,21 +40,34 @@ pub async fn add_item(
   idle_mappings.insert(&mut idle_mapping).await
 }
 
-#[put("/idle_mapping/<mapping_id>", format = "json", data = "<idle_mapping>")]
+#[put(
+  "/idle_mapping/<mapping_id>?<filter..>",
+  format = "json",
+  data = "<idle_mapping>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   mapping_id: &str,
+  filter: HashMap<&str, &str>,
   idle_mapping: Json<IdleMapping>,
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
   let idle_mapping = (*idle_mapping).clone();
-  idle_mappings.update(doc! { "value": mapping_id }, idle_mapping).await
+  idle_mappings
+    .update(doc! { "value": mapping_id }, &filter, idle_mapping)
+    .await
 }
 
-#[delete("/idle_mapping/<idle_mapping>")]
-pub async fn delete_item(_auth: guard::Auth, idle_mapping: &str) -> DocumentActionResponder<IdleMapping> {
+#[delete("/idle_mapping/<idle_mapping>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  idle_mapping: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
-  idle_mappings.delete(doc! { "value": idle_mapping }).await
+  idle_mappings
+    .delete(doc! { "value": idle_mapping }, &filter)
+    .await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

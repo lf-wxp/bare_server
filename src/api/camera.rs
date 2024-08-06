@@ -18,10 +18,14 @@ pub async fn get_list(
   let cameras = Cameras::new();
   cameras.list(&filter).await
 }
-#[get("/camera/<camera>")]
-pub async fn get_item(_auth: guard::Auth, camera: &str) -> DocumentActionResponder<Camera> {
+#[get("/camera/<camera>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  camera: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
-  cameras.find_one(doc! { "value": camera }).await
+  cameras.find_one(doc! { "value": camera }, &filter).await
 }
 
 #[post("/camera", format = "json", data = "<camera>")]
@@ -34,21 +38,28 @@ pub async fn add_item(
   cameras.insert(&mut camera).await
 }
 
-#[put("/camera/<camera_id>", format = "json", data = "<camera>")]
+#[put("/camera/<camera_id>?<filter..>", format = "json", data = "<camera>")]
 pub async fn update_item(
   _auth: guard::Auth,
   camera_id: &str,
+  filter: HashMap<&str, &str>,
   camera: Json<Camera>,
 ) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
   let camera = (*camera).clone();
-  cameras.update(doc! { "value": camera_id }, camera).await
+  cameras
+    .update(doc! { "value": camera_id }, &filter, camera)
+    .await
 }
 
-#[delete("/camera/<camera>")]
-pub async fn delete_item(_auth: guard::Auth, camera: &str) -> DocumentActionResponder<Camera> {
+#[delete("/camera/<camera>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  camera: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
-  cameras.delete(doc! { "value": camera }).await
+  cameras.delete(doc! { "value": camera }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

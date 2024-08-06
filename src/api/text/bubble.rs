@@ -18,10 +18,14 @@ pub async fn get_list(
   let bubbles = Bubbles::new();
   bubbles.list(&filter).await
 }
-#[get("/bubble/<bubble>")]
-pub async fn get_item(_auth: guard::Auth, bubble: &str) -> DocumentActionResponder<Bubble> {
+#[get("/bubble/<bubble>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  bubble: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Bubble> {
   let bubbles = Bubbles::new();
-  bubbles.find_one(doc! { "value": bubble }).await
+  bubbles.find_one(doc! { "value": bubble }, &filter).await
 }
 
 #[post("/bubble", format = "json", data = "<bubble>")]
@@ -34,21 +38,28 @@ pub async fn add_item(
   bubbles.insert(&mut bubble).await
 }
 
-#[put("/bubble/<bubble_id>", format = "json", data = "<bubble>")]
+#[put("/bubble/<bubble_id>?<filter..>", format = "json", data = "<bubble>")]
 pub async fn update_item(
   _auth: guard::Auth,
   bubble_id: &str,
+  filter: HashMap<&str, &str>,
   bubble: Json<Bubble>,
 ) -> DocumentActionResponder<Bubble> {
   let bubbles = Bubbles::new();
   let bubble = (*bubble).clone();
-  bubbles.update(doc! { "value": bubble_id }, bubble).await
+  bubbles
+    .update(doc! { "value": bubble_id }, &filter, bubble)
+    .await
 }
 
-#[delete("/bubble/<bubble>")]
-pub async fn delete_item(_auth: guard::Auth, bubble: &str) -> DocumentActionResponder<Bubble> {
+#[delete("/bubble/<bubble>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  bubble: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Bubble> {
   let bubbles = Bubbles::new();
-  bubbles.delete(doc! { "value": bubble }).await
+  bubbles.delete(doc! { "value": bubble }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{Hairdos, CollectionOperations},
+  collection::{CollectionOperations, Hairdos},
   document::Hairdo,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,14 @@ pub async fn get_list(
   let hairdos = Hairdos::new();
   hairdos.list(&filter).await
 }
-#[get("/hairdo/<hairdo>")]
-pub async fn get_item(_auth: guard::Auth, hairdo: &str) -> DocumentActionResponder<Hairdo> {
+#[get("/hairdo/<hairdo>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  hairdo: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Hairdo> {
   let hairdos = Hairdos::new();
-  hairdos.find_one(doc! { "value": hairdo }).await
+  hairdos.find_one(doc! { "value": hairdo }, &filter).await
 }
 
 #[post("/hairdo", format = "json", data = "<hairdo>")]
@@ -34,21 +38,28 @@ pub async fn add_item(
   hairdos.insert(&mut hairdo).await
 }
 
-#[put("/hairdo/<hairdo_id>", format = "json", data = "<hairdo>")]
+#[put("/hairdo/<hairdo_id>?<filter..>", format = "json", data = "<hairdo>")]
 pub async fn update_item(
   _auth: guard::Auth,
   hairdo_id: &str,
+  filter: HashMap<&str, &str>,
   hairdo: Json<Hairdo>,
 ) -> DocumentActionResponder<Hairdo> {
   let hairdos = Hairdos::new();
   let hairdo = (*hairdo).clone();
-  hairdos.update(doc! { "value": hairdo_id }, hairdo).await
+  hairdos
+    .update(doc! { "value": hairdo_id }, &filter, hairdo)
+    .await
 }
 
-#[delete("/hairdo/<hairdo>")]
-pub async fn delete_item(_auth: guard::Auth, hairdo: &str) -> DocumentActionResponder<Hairdo> {
+#[delete("/hairdo/<hairdo>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  hairdo: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Hairdo> {
   let hairdos = Hairdos::new();
-  hairdos.delete(doc! { "value": hairdo }).await
+  hairdos.delete(doc! { "value": hairdo }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

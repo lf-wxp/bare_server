@@ -2,10 +2,12 @@ use std::collections::HashMap;
 
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::{
   collection::{CollectionOperations, CostumeCategories},
   document::CostumeCategory,
+  filter::Filter,
   guard,
   responder::DocumentActionResponder,
 };
@@ -18,14 +20,15 @@ pub async fn get_list(
   let costume_categories = CostumeCategories::new();
   costume_categories.list(&filter).await
 }
-#[get("/costume_category/<category_name>")]
+#[get("/costume_category/<category_name>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
   category_name: &str,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   costume_categories
-    .find_one(doc! { "name": category_name })
+    .find_one(doc! { "name": category_name }, &filter)
     .await
 }
 
@@ -39,27 +42,33 @@ pub async fn add_item(
   costume_categories.insert(&mut category).await
 }
 
-#[put("/costume_category/<category_name>", format = "json", data = "<category>")]
+#[put(
+  "/costume_category/<category_name>?<filter..>",
+  format = "json",
+  data = "<category>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   category_name: &str,
   category: Json<CostumeCategory>,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   let category = (*category).clone();
   costume_categories
-    .update(doc! { "name": category_name}, category)
+    .update(doc! { "name": category_name}, &filter, category)
     .await
 }
 
-#[delete("/costume_category/<category_name>")]
+#[delete("/costume_category/<category_name>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
   category_name: &str,
+  filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   costume_categories
-    .delete(doc! { "name": category_name })
+    .delete(doc! { "name": category_name }, &filter)
     .await
 }
 

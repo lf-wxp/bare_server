@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{IdleTransitions, CollectionOperations},
+  collection::{CollectionOperations, IdleTransitions},
   document::IdleTransition,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,16 @@ pub async fn get_list(
   let idle_transitions = IdleTransitions::new();
   idle_transitions.list(&filter).await
 }
-#[get("/idle_transition/<idle_transition>")]
-pub async fn get_item(_auth: guard::Auth, idle_transition: &str) -> DocumentActionResponder<IdleTransition> {
+#[get("/idle_transition/<idle_transition>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  idle_transition: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<IdleTransition> {
   let idle_transitions = IdleTransitions::new();
-  idle_transitions.find_one(doc! { "value": idle_transition }).await
+  idle_transitions
+    .find_one(doc! { "value": idle_transition }, &filter)
+    .await
 }
 
 #[post("/idle_transition", format = "json", data = "<idle_transition>")]
@@ -34,21 +40,34 @@ pub async fn add_item(
   idle_transitions.insert(&mut idle_transition).await
 }
 
-#[put("/idle_transition/<transition_id>", format = "json", data = "<idle_transition>")]
+#[put(
+  "/idle_transition/<transition_id>?<filter..>",
+  format = "json",
+  data = "<idle_transition>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   transition_id: &str,
+  filter: HashMap<&str, &str>,
   idle_transition: Json<IdleTransition>,
 ) -> DocumentActionResponder<IdleTransition> {
   let idle_transitions = IdleTransitions::new();
   let idle_transition = (*idle_transition).clone();
-  idle_transitions.update(doc! { "value": transition_id }, idle_transition).await
+  idle_transitions
+    .update(doc! { "value": transition_id }, &filter, idle_transition)
+    .await
 }
 
-#[delete("/idle_transition/<idle_transition>")]
-pub async fn delete_item(_auth: guard::Auth, idle_transition: &str) -> DocumentActionResponder<IdleTransition> {
+#[delete("/idle_transition/<idle_transition>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  idle_transition: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<IdleTransition> {
   let idle_transitions = IdleTransitions::new();
-  idle_transitions.delete(doc! { "value": idle_transition }).await
+  idle_transitions
+    .delete(doc! { "value": idle_transition }, &filter)
+    .await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

@@ -125,20 +125,41 @@ pub trait CollectionOperations {
     DocumentActionResponder::FindAll(result)
   }
 
-  async fn find_one(&self, filter: Document) -> DocumentActionResponder<Self::Doc> {
-    DocumentActionResponder::FindOne(self.collection().find_one(filter).await)
+  async fn find_one(
+    &self,
+    mut exact_filter: Document,
+    filter: &HashMap<&str, &str>,
+  ) -> DocumentActionResponder<Self::Doc> {
+    exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
+    DocumentActionResponder::FindOne(self.collection().find_one(exact_filter).await)
   }
 
-  async fn update(&self, filter: Document, item: Self::Doc) -> DocumentActionResponder<Self::Doc> {
+  async fn update(
+    &self,
+    mut exact_filter: Document,
+    filter: &HashMap<&str, &str>,
+    item: Self::Doc,
+  ) -> DocumentActionResponder<Self::Doc> {
     let now = Utc::now().timestamp();
     let mut item = to_document(&item).unwrap();
     item.insert("update_timestamp", now);
     let item = doc! { "$set": item };
-    DocumentActionResponder::Update(self.collection().find_one_and_update(filter, item).await)
+    exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
+    DocumentActionResponder::Update(
+      self
+        .collection()
+        .find_one_and_update(exact_filter, item)
+        .await,
+    )
   }
 
-  async fn delete(&self, filter: Document) -> DocumentActionResponder<Self::Doc> {
-    DocumentActionResponder::Delete(self.collection().find_one_and_delete(filter).await)
+  async fn delete(
+    &self,
+    mut exact_filter: Document,
+    filter: &HashMap<&str, &str>,
+  ) -> DocumentActionResponder<Self::Doc> {
+    exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
+    DocumentActionResponder::Delete(self.collection().find_one_and_delete(exact_filter).await)
   }
 }
 

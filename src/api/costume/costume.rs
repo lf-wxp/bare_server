@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{Costumes, CollectionOperations},
+  collection::{CollectionOperations, Costumes},
   document::Costume,
   guard,
   responder::DocumentActionResponder,
@@ -18,10 +18,14 @@ pub async fn get_list(
   let costumes = Costumes::new();
   costumes.list(&filter).await
 }
-#[get("/costume/<costume>")]
-pub async fn get_item(_auth: guard::Auth, costume: &str) -> DocumentActionResponder<Costume> {
+#[get("/costume/<costume>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  costume: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Costume> {
   let costumes = Costumes::new();
-  costumes.find_one(doc! { "value": costume }).await
+  costumes.find_one(doc! { "value": costume }, &filter).await
 }
 
 #[post("/costume", format = "json", data = "<costume>")]
@@ -34,21 +38,32 @@ pub async fn add_item(
   costumes.insert(&mut costume).await
 }
 
-#[put("/costume/<costume_id>", format = "json", data = "<costume>")]
+#[put(
+  "/costume/<costume_id>?<filter..>",
+  format = "json",
+  data = "<costume>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   costume_id: &str,
+  filter: HashMap<&str, &str>,
   costume: Json<Costume>,
 ) -> DocumentActionResponder<Costume> {
   let costumes = Costumes::new();
   let costume = (*costume).clone();
-  costumes.update(doc! { "value": costume_id }, costume).await
+  costumes
+    .update(doc! { "value": costume_id }, &filter, costume)
+    .await
 }
 
-#[delete("/costume/<costume>")]
-pub async fn delete_item(_auth: guard::Auth, costume: &str) -> DocumentActionResponder<Costume> {
+#[delete("/costume/<costume>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  costume: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Costume> {
   let costumes = Costumes::new();
-  costumes.delete(doc! { "value": costume }).await
+  costumes.delete(doc! { "value": costume }, &filter).await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

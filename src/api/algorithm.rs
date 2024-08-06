@@ -18,10 +18,16 @@ pub async fn get_list(
   let algorithms = Algorithms::new();
   algorithms.list(&filter).await
 }
-#[get("/alg/<algorithm>")]
-pub async fn get_item(_auth: guard::Auth, algorithm: &str) -> DocumentActionResponder<Algorithm> {
+#[get("/alg/<algorithm>?<filter..>")]
+pub async fn get_item(
+  _auth: guard::Auth,
+  algorithm: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Algorithm> {
   let algorithms = Algorithms::new();
-  algorithms.find_one(doc! { "value": algorithm }).await
+  algorithms
+    .find_one(doc! { "value": algorithm }, &filter)
+    .await
 }
 
 #[post("/alg", format = "json", data = "<algorithm>")]
@@ -34,21 +40,34 @@ pub async fn add_item(
   algorithms.insert(&mut algorithm).await
 }
 
-#[put("/alg/<algorithm_id>", format = "json", data = "<algorithm>")]
+#[put(
+  "/alg/<algorithm_id>?<filter..>",
+  format = "json",
+  data = "<algorithm>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   algorithm_id: &str,
+  filter: HashMap<&str, &str>,
   algorithm: Json<Algorithm>,
 ) -> DocumentActionResponder<Algorithm> {
   let algorithms = Algorithms::new();
   let algorithm = (*algorithm).clone();
-  algorithms.update(doc! { "value": algorithm_id }, algorithm).await
+  algorithms
+    .update(doc! { "value": algorithm_id }, &filter, algorithm)
+    .await
 }
 
-#[delete("/alg/<algorithm>")]
-pub async fn delete_item(_auth: guard::Auth, algorithm: &str) -> DocumentActionResponder<Algorithm> {
+#[delete("/alg/<algorithm>?<filter..>")]
+pub async fn delete_item(
+  _auth: guard::Auth,
+  algorithm: &str,
+  filter: HashMap<&str, &str>,
+) -> DocumentActionResponder<Algorithm> {
   let algorithms = Algorithms::new();
-  algorithms.delete(doc! { "value": algorithm }).await
+  algorithms
+    .delete(doc! { "value": algorithm }, &filter)
+    .await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

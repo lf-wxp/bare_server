@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 pub trait Filter {
   fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32);
+  fn query(&self, fields: &[&str]) -> Document;
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -87,5 +88,37 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
     let skip = (page - 1f32) * limit;
 
     (query, sort, skip, limit)
+  }
+  fn query(&self, fields: &[&str]) -> Document {
+    let mut query = doc! {};
+    for (key, value) in self {
+      let key_str = key.to_string();
+      let value_str = value.to_string();
+      if !["sort_name", "sort", "page", "size"].contains(&key_str.as_str()) {
+        let operator = match key_str.rfind("_") {
+          Some(index) => &key_str[index + 1..],
+          None => "equal",
+        };
+        let field_name = if operator == "equal" {
+          &key_str
+        } else {
+          &key_str[..key_str.len() - operator.len() - 1]
+        };
+
+        if fields.contains(&field_name) {
+          let condition = match operator {
+            "gte" => doc! { "$gte": value_str },
+            "gt" => doc! { "$gt": value_str },
+            "lte" => doc! { "$lte": value_str },
+            "lt" => doc! { "$lt": value_str },
+            "contains" => doc! { "$regex": value_str, "$options": "i" },
+            "equal" => doc! { "$eq": value_str },
+            _ => doc! {},
+          };
+          query.insert(field_name, condition);
+        }
+      }
+    }
+    query
   }
 }
