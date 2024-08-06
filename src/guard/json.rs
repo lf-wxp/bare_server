@@ -51,14 +51,16 @@ impl<'r, T: Deserialize<'r>> FromData<'r> for CustomJson<T> {
       Err(Error::Parse(s, e)) if e.classify() == serde_json::error::Category::Data => {
         let re = Regex::new(r"missing field `(.+?)`").unwrap();
         let err = e.to_string();
-        let cap = &re.captures(&err).unwrap()[1];
+        let cap = re
+          .captures(&err)
+          .map_or("", |x| x.get(1).map_or("", |x| x.as_str()));
         if !cap.is_empty() {
-          req.local_cache(|| cap.to_string());
-          return Outcome::Error((Status::from(Status { code: 460 }), Error::Parse(s, e)));
+          req.local_cache(|| format!("missing {} field", cap.to_string()));
         }
-        Outcome::Error((Status::from(Status { code: 461 }), Error::Parse(s, e)))
+        req.local_cache(|| err);
+        Outcome::Error((Status::from(Status { code: 460 }), Error::Parse(s, e)))
       }
-      Err(e) => Outcome::Error((Status::from(Status { code: 461 }), e))
+      Err(e) => Outcome::Error((Status::from(Status { code: 460 }), e)),
     }
   }
 }

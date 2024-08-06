@@ -14,7 +14,7 @@ pub enum Gender {
 pub struct Timbre {
   pub role: String,
   name: String,
-  value: String,
+  value: usize,
   image: Option<String>,
   gender: Gender,
   emotion: String,
