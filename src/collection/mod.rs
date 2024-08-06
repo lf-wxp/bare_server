@@ -207,6 +207,7 @@ macro_rules! collection_wrapper {
 pub async fn create_db_index() {
   Roles::create_unique_index().await.unwrap();
   Actions::create_unique_index().await.unwrap();
+  ActionCategories::create_unique_index().await.unwrap();
   Algorithms::create_unique_index().await.unwrap();
   Cameras::create_unique_index().await.unwrap();
   Hairdos::create_unique_index().await.unwrap();
