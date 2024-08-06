@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use rocket::serde::json::Json;
 
 use crate::{
-  collection::{CollectionOperations, ActionCategories},
+  collection::{ActionCategories, CollectionOperations},
   document::ActionCategory,
   guard,
   responder::DocumentActionResponder,
@@ -40,12 +40,16 @@ pub async fn add_item(
   action_categories.insert(&mut category).await
 }
 
-#[put("/action_category/<category_name>?<filter..>", format = "json", data = "<category>")]
+#[put(
+  "/action_category/<category_name>?<filter..>",
+  format = "json",
+  data = "<category>"
+)]
 pub async fn update_item(
   _auth: guard::Auth,
   category_name: &str,
-  category: Json<ActionCategory>,
   filter: HashMap<&str, &str>,
+  category: Json<ActionCategory>,
 ) -> DocumentActionResponder<ActionCategory> {
   let action_categories = ActionCategories::new();
   let category = (*category).clone();

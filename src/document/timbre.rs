@@ -15,7 +15,7 @@ pub struct Timbre {
   pub role: String,
   name: String,
   value: String,
-  image: String,
+  image: Option<String>,
   gender: Gender,
   emotion: String,
   audio: String,
