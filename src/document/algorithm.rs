@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
+use super::Options;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum AlgType {
@@ -14,7 +16,7 @@ pub enum AlgType {
 pub struct Algorithm {
   role: String,
   value: AlgType,
-  options: Vec<Option<String>>,
+  options: Vec<Options<String>>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }

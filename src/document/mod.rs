@@ -34,7 +34,7 @@ pub struct Location {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Option<T> {
+pub struct Options<T> {
   value: T,
   label: String,
 }
