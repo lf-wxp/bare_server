@@ -18,15 +18,15 @@ pub async fn get_list(
   let idle_mappings = IdleMappings::new();
   idle_mappings.list(&filter).await
 }
-#[get("/idle_mapping/<idle_mapping>?<filter..>")]
+#[get("/idle_mapping/<mapping_value>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
-  idle_mapping: &str,
+  mapping_value: &str,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
   idle_mappings
-    .find_one(doc! { "value": idle_mapping }, &filter)
+    .find_one(doc! { "value": mapping_value }, &filter)
     .await
 }
 
@@ -37,36 +37,38 @@ pub async fn add_item(
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
   let mut idle_mapping = (*idle_mapping).clone();
+  idle_mapping.set_value();
   idle_mappings.insert(&mut idle_mapping).await
 }
 
 #[put(
-  "/idle_mapping/<mapping_id>?<filter..>",
+  "/idle_mapping/<mapping_value>?<filter..>",
   format = "json",
   data = "<idle_mapping>"
 )]
 pub async fn update_item(
   _auth: guard::Auth,
-  mapping_id: &str,
+  mapping_value: &str,
   filter: HashMap<&str, &str>,
   idle_mapping: Json<IdleMapping>,
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
-  let idle_mapping = (*idle_mapping).clone();
+  let mut idle_mapping = (*idle_mapping).clone();
+  idle_mapping.set_value();
   idle_mappings
-    .update(doc! { "value": mapping_id }, &filter, idle_mapping)
+    .update(doc! { "value": mapping_value }, &filter, idle_mapping)
     .await
 }
 
-#[delete("/idle_mapping/<idle_mapping>?<filter..>")]
+#[delete("/idle_mapping/<mapping_value>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
-  idle_mapping: &str,
+  mapping_value: &str,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
   idle_mappings
-    .delete(doc! { "value": idle_mapping }, &filter)
+    .delete(doc! { "value": mapping_value }, &filter)
     .await
 }
 
