@@ -21,7 +21,7 @@ pub async fn get_list(
 #[get("/timbre/<timbre>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
-  timbre: &str,
+  timbre: f32,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Timbre> {
   let timbres = Timbres::new();
@@ -41,7 +41,7 @@ pub async fn add_item(
 #[put("/timbre/<timbre_id>?<filter..>", format = "json", data = "<timbre>")]
 pub async fn update_item(
   _auth: guard::Auth,
-  timbre_id: &str,
+  timbre_id: f32,
   filter: HashMap<&str, &str>,
   timbre: Json<Timbre>,
 ) -> DocumentActionResponder<Timbre> {
@@ -55,7 +55,7 @@ pub async fn update_item(
 #[delete("/timbre/<timbre>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
-  timbre: &str,
+  timbre: f32,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Timbre> {
   let timbres = Timbres::new();
