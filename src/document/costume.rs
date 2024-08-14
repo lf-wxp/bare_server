@@ -7,6 +7,7 @@ use super::LinkRole;
 pub struct CostumeCategory {
   pub role: String,
   pub name: String,
+  pub required: bool,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
@@ -18,6 +19,7 @@ pub struct Costume {
   value: String,
   image: String,
   pub category: String,
+  pub is_default: Option<bool>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
@@ -26,6 +28,7 @@ pub struct Costume {
 pub struct CostumeWithCategory {
   pub role: String,
   pub category: String,
+  pub required: bool,
   pub costume: Vec<Costume>,
 }
 

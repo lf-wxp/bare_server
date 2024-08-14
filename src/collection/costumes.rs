@@ -34,10 +34,11 @@ impl Costumes {
     let list = categories
       .into_iter()
       .map(|category| {
-        let CostumeCategory { name, role, .. } = category;
+        let CostumeCategory { name, role, required, .. } = category;
         CostumeWithCategory {
           role,
           category: name.clone(),
+          required,
           costume: costumes
             .clone()
             .into_iter()
