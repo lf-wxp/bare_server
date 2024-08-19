@@ -35,6 +35,7 @@ pub enum DocumentActionResponder<T: DocWrap> {
   FindAll(Result<FindAllData<T>>),
   Delete(Result<Option<T>>),
   Update(Result<Option<T>>),
+  Drop(Result<()>),
 }
 
 fn handle_error(err: &Error) -> (Status, Value) {
@@ -56,6 +57,10 @@ impl<'r, T: DocWrap> Responder<'r, 'static> for DocumentActionResponder<T> {
         Err(err) => handle_error(&err),
       },
       DocumentActionResponder::FindAll(result) => match result {
+        Ok(docs) => (Status::Ok, json!(docs)),
+        Err(err) => handle_error(&err),
+      },
+      DocumentActionResponder::Drop(result) => match result {
         Ok(docs) => (Status::Ok, json!(docs)),
         Err(err) => handle_error(&err),
       },

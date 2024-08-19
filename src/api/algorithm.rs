@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
-use mongodb::bson::doc;
+use mongodb::{bson::doc, error::Error};
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{Algorithms, CollectionOperations},
@@ -70,6 +69,19 @@ pub async fn delete_item(
     .await
 }
 
+#[delete("/alg?<confirm..>")]
+pub async fn drop(
+  _auth: guard::Auth,
+  confirm: HashMap<&str, &str>,
+) -> DocumentActionResponder<Algorithm> {
+  let algorithms = Algorithms::new();
+  let confirm = confirm.get("confirm").map_or(false, |x| *x == "true");
+  if confirm {
+    return algorithms.drop().await;
+  }
+  return DocumentActionResponder::Drop(Err(Error::custom("cannot operate")));
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-  routes![get_item, get_list, add_item, update_item, delete_item]
+  routes![get_item, get_list, add_item, update_item, delete_item, drop]
 }

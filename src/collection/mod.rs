@@ -161,6 +161,10 @@ pub trait CollectionOperations {
     exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
     DocumentActionResponder::Delete(self.collection().find_one_and_delete(exact_filter).await)
   }
+
+  async fn drop(&self) -> DocumentActionResponder<Self::Doc> {
+    DocumentActionResponder::Drop(self.collection().drop().await)
+  }
 }
 
 #[macro_export]
