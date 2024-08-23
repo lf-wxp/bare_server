@@ -38,7 +38,7 @@ impl Costumes {
         CostumeWithCategory {
           role,
           category: name.clone(),
-          required,
+          required: required.unwrap_or(false),
           costume: costumes
             .clone()
             .into_iter()

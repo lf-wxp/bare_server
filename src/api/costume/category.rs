@@ -2,12 +2,10 @@ use std::collections::HashMap;
 
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
-use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::{
   collection::{CollectionOperations, CostumeCategories},
   document::CostumeCategory,
-  filter::Filter,
   guard,
   responder::DocumentActionResponder,
 };
