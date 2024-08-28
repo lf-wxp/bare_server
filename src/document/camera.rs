@@ -10,7 +10,6 @@ pub enum CameraCategory {
   Crane,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Camera {
   name: String,
@@ -19,8 +18,8 @@ pub struct Camera {
   step: f64,
   category: CameraCategory,
   use_weight: bool,
-  value_range: [f64;2],
-  speed_range: [f64;2],
+  value_range: [f64; 2],
+  speed_range: [f64; 2],
   mark: Vec<Options<f64>>,
   tip: String,
   desc: String,

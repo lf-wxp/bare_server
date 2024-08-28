@@ -1,3 +1,4 @@
+use mongodb::bson::{doc, Document};
 use rocket::Request;
 use serde::Serializer;
 use serde_json::Value;
@@ -20,4 +21,15 @@ where
 {
   let val = maybe_bool.unwrap_or(false);
   serializer.serialize_bool(val)
+}
+
+pub trait GenOptionValue {
+  fn set_value(&mut self) {}
+}
+
+pub fn get_compare_doc(operator: &str, value: String) -> Document {
+  match value.parse::<i64>() {
+    Ok(num) => doc! { operator: num},
+    Err(_) => doc! { operator: value },
+  }
 }

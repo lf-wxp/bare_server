@@ -1,19 +1,19 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{CollectionOperations, IdleMappings},
   document::IdleMapping,
   guard,
   responder::DocumentActionResponder,
+  utils::GenOptionValue,
 };
 
 #[get("/idle_mapping?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<IdleMapping> {
   let idle_mappings = IdleMappings::new();
   idle_mappings.list(&filter).await

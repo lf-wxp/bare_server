@@ -8,9 +8,8 @@ use super::Options;
 pub enum AlgType {
   AiLab,
   ArKit,
-  Mha,  
+  Mha,
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Algorithm {

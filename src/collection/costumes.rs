@@ -21,7 +21,7 @@ collection_wrapper!(
 impl Costumes {
   pub async fn aggregate(
     &self,
-    filter: &HashMap<&str, &str>,
+    filter: &HashMap<String, String>,
   ) -> error::Result<FindAllData<CostumeWithCategory>> {
     let costume_categories = CostumeCategories::new();
     let FindAllData {

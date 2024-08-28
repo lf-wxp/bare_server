@@ -1,19 +1,19 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{Bubbles, CollectionOperations},
   document::Bubble,
   guard,
   responder::DocumentActionResponder,
+  utils::GenOptionValue,
 };
 
 #[get("/bubble?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Bubble> {
   let bubbles = Bubbles::new();
   bubbles.list(&filter).await
@@ -35,6 +35,7 @@ pub async fn add_item(
 ) -> DocumentActionResponder<Bubble> {
   let bubbles = Bubbles::new();
   let mut bubble = (*bubble).clone();
+  bubble.set_value();
   bubbles.insert(&mut bubble).await
 }
 

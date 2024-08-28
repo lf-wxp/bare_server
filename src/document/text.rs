@@ -1,5 +1,10 @@
+use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
+
+use crate::utils::GenOptionValue;
+
+use super::Options;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sprite {
@@ -10,12 +15,18 @@ pub struct Sprite {
 }
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Bubble {
-  name: String,
-  value: String,
+  name: Option<String>,
+  value: Option<String>,
   image: String,
   sprite: Sprite,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
+}
+
+impl GenOptionValue for Bubble {
+  fn set_value(&mut self) {
+    self.value = Some(nanoid!());
+  }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -40,11 +51,41 @@ pub struct Shadow {
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Text {
-  value: String,
+  value: Option<String>,
   color: String,
   stroke: Option<Stroke>,
   background: Option<Background>,
   shadow: Option<Shadow>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
+}
+
+impl GenOptionValue for Text {
+  fn set_value(&mut self) {
+    self.value = Some(nanoid!());
+  }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
+pub struct Font {
+  pub value: Option<String>,
+  pub name: String,
+  pub weight: String,
+  provenance: Option<String>,
+  expired: i64,
+  enabled: bool,
+  create_timestamp: Option<i64>,
+  update_timestamp: Option<i64>,
+}
+
+impl GenOptionValue for Font {
+  fn set_value(&mut self) {
+    self.value = Some(nanoid!());
+  }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
+pub struct FontAggregate {
+  pub name: String,
+  pub weight_options: Vec<Options<Option<String>>>,
 }

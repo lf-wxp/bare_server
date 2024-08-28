@@ -14,10 +14,10 @@ mod utils;
 mod collection;
 mod api;
 mod catcher;
-mod document;
-mod responder;
-mod filter;
 mod config;
+mod document;
+mod filter;
+mod responder;
 
 #[launch]
 async fn rocket() -> _ {

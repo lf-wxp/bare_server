@@ -12,5 +12,5 @@ fn default(_: &Request<'_>) -> String {
 }
 
 pub fn catcher() -> Vec<Catcher> {
-  catchers![data_field_missing, default] 
+  catchers![data_field_missing, default]
 }

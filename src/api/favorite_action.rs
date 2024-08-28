@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
+use std::collections::HashMap;
 
 use crate::{
   collection::{CollectionOperations, FavoriteActions},
@@ -12,7 +11,7 @@ use crate::{
 #[get("/favorite_action?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<FavoriteAction> {
   let favorite_actions = FavoriteActions::new();
   favorite_actions.list(&filter).await

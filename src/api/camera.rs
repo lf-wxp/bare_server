@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{Cameras, CollectionOperations},
@@ -13,7 +12,7 @@ use crate::{
 #[get("/camera?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
   cameras.list(&filter).await
@@ -25,7 +24,9 @@ pub async fn get_item(
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
-  cameras.find_one(doc! { "value_field": value_field }, &filter).await
+  cameras
+    .find_one(doc! { "value_field": value_field }, &filter)
+    .await
 }
 
 #[post("/camera", format = "json", data = "<camera>")]
@@ -59,7 +60,9 @@ pub async fn delete_item(
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Camera> {
   let cameras = Cameras::new();
-  cameras.delete(doc! { "value_field": value_field }, &filter).await
+  cameras
+    .delete(doc! { "value_field": value_field }, &filter)
+    .await
 }
 
 pub fn routes() -> Vec<rocket::Route> {

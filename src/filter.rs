@@ -2,6 +2,8 @@ use mongodb::bson::{doc, Document};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Debug;
+
+use crate::utils::get_compare_doc;
 pub trait Filter {
   fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32);
   fn query(&self, fields: &[&str]) -> Document;
@@ -67,10 +69,10 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
 
           if fields.contains(&field_name) {
             let condition = match operator {
-              "gte" => doc! { "$gte": value_str },
-              "gt" => doc! { "$gt": value_str },
-              "lte" => doc! { "$lte": value_str },
-              "lt" => doc! { "$lt": value_str },
+              "gte" => get_compare_doc("$gte", value_str),
+              "gt" => get_compare_doc("$gt", value_str),
+              "lte" => get_compare_doc("$lte", value_str),
+              "lt" => get_compare_doc("$lt", value_str),
               "contains" => doc! { "$regex": value_str, "$options": "i" },
               "equal" => doc! { "$eq": value_str },
               _ => doc! {},

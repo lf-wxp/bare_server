@@ -4,6 +4,7 @@ pub mod action;
 pub mod algorithm;
 pub mod camera;
 pub mod costume;
+pub mod favorite_action;
 pub mod hairdo;
 pub mod idle;
 pub mod material;
@@ -11,12 +12,12 @@ pub mod role;
 pub mod scene;
 pub mod text;
 pub mod timbre;
-pub mod favorite_action;
 
 pub use action::*;
 pub use algorithm::*;
 pub use camera::*;
 pub use costume::*;
+pub use favorite_action::*;
 pub use hairdo::*;
 pub use idle::*;
 pub use material::*;
@@ -24,7 +25,6 @@ pub use role::*;
 pub use scene::*;
 pub use text::*;
 pub use timbre::*;
-pub use favorite_action::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Location {
@@ -35,8 +35,8 @@ pub struct Location {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Options<T> {
-  value: T,
-  label: String,
+  pub value: T,
+  pub label: String,
 }
 
 pub trait LinkRole {

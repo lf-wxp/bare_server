@@ -9,7 +9,7 @@ use super::LinkRole;
 pub struct CostumeCategory {
   pub role: String,
   pub name: String,
-  #[serde(serialize_with="serialize_bool_option")] 
+  #[serde(serialize_with = "serialize_bool_option")]
   pub required: Option<bool>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
@@ -22,7 +22,7 @@ pub struct Costume {
   value: String,
   image: String,
   pub category: String,
-  #[serde(serialize_with="serialize_bool_option")] 
+  #[serde(serialize_with = "serialize_bool_option")]
   pub is_default: Option<bool>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,

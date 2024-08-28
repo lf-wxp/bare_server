@@ -12,7 +12,7 @@ use crate::{
 #[get("/alg?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Algorithm> {
   let algorithms = Algorithms::new();
   algorithms.list(&filter).await

@@ -21,7 +21,7 @@ collection_wrapper!(
 impl Actions {
   pub async fn aggregate(
     &self,
-    filter: &HashMap<&str, &str>,
+    filter: &HashMap<String, String>,
   ) -> error::Result<FindAllData<ActionWithCategory>> {
     let action_categories = ActionCategories::new();
     let FindAllData {

@@ -1,28 +1,28 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{CollectionOperations, Materials},
   document::Material,
   guard,
   responder::DocumentActionResponder,
+  utils::GenOptionValue,
 };
 
 #[get("/material?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
   materials.list(&filter).await
 }
+
 #[get("/material/<material>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
   material: &str,
-
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
@@ -38,6 +38,7 @@ pub async fn add_item(
 ) -> DocumentActionResponder<Material> {
   let materials = Materials::new();
   let mut material = (*material).clone();
+  material.set_value();
   materials.insert(&mut material).await
 }
 

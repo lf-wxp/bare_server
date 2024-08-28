@@ -12,7 +12,7 @@ use crate::{
 #[get("/role_aggregate?<filter..>")]
 pub async fn get_aggregate_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<RoleAggregate> {
   let roles = Roles::new();
   let data = roles.aggregate(&filter).await;
@@ -22,7 +22,7 @@ pub async fn get_aggregate_list(
 #[get("/role?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Role> {
   let roles = Roles::new();
   roles.list(&filter).await

@@ -61,14 +61,18 @@ pub trait CollectionOperations {
     DocumentActionResponder::Insert(result)
   }
 
-  async fn list_pure(&self, filter: &HashMap<&str, &str>) -> error::Result<FindAllData<Self::Doc>> {
+  async fn list_pure(
+    &self,
+    filter: &HashMap<String, String>,
+  ) -> error::Result<FindAllData<Self::Doc>> {
     let (query, sort, skip, limit) = filter.parse(Self::Doc::FIELD_NAMES_AS_SLICE);
+    println!("filter {:?}", &query);
     let pipeline = vec![
       doc! {
         "$match":query
       },
       doc! {
-          "$sort": sort,
+        "$sort": sort,
       },
       doc! {
         "$facet": {
@@ -120,7 +124,7 @@ pub trait CollectionOperations {
     }
   }
 
-  async fn list(&self, filter: &HashMap<&str, &str>) -> DocumentActionResponder<Self::Doc> {
+  async fn list(&self, filter: &HashMap<String, String>) -> DocumentActionResponder<Self::Doc> {
     let result = self.list_pure(&filter).await;
     DocumentActionResponder::FindAll(result)
   }
@@ -226,4 +230,5 @@ pub async fn create_db_index() {
   Scenes::create_unique_index().await.unwrap();
   Timbres::create_unique_index().await.unwrap();
   FavoriteActions::create_unique_index().await.unwrap();
+  Fonts::create_unique_index().await.unwrap();
 }

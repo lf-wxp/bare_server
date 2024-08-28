@@ -53,5 +53,3 @@ impl LinkRole for ActionWithCategory {
     self.role.clone()
   }
 }
-
-

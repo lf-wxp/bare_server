@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{Actions, CollectionOperations},
@@ -13,7 +12,7 @@ use crate::{
 #[get("/action_aggregate?<filter..>")]
 pub async fn get_aggregate_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<ActionWithCategory> {
   let actions = Actions::new();
   let data = actions.aggregate(&filter).await;
@@ -23,7 +22,7 @@ pub async fn get_aggregate_list(
 #[get("/action?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Action> {
   let actions = Actions::new();
   actions.list(&filter).await

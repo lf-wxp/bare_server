@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
+use crate::utils::GenOptionValue;
+
 use super::LinkRole;
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
@@ -34,8 +36,8 @@ pub struct IdleMapping {
   update_timestamp: Option<i64>,
 }
 
-impl IdleMapping {
-  pub fn set_value(&mut self) {
+impl GenOptionValue for IdleMapping {
+  fn set_value(&mut self) {
     let Self {
       role,
       start,

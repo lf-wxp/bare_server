@@ -1,24 +1,24 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{CollectionOperations, Texts},
   document::Text,
   guard,
   responder::DocumentActionResponder,
+  utils::GenOptionValue,
 };
 
 #[get("/text?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<Text> {
   let texts = Texts::new();
   texts.list(&filter).await
 }
-#[get("/tex/<text>?<filter..>")]
+#[get("/text/<text>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
   text: &str,
@@ -28,17 +28,18 @@ pub async fn get_item(
   texts.find_one(doc! { "value": text }, &filter).await
 }
 
-#[post("/tex", format = "json", data = "<text>")]
+#[post("/text", format = "json", data = "<text>")]
 pub async fn add_item(
   _auth: guard::Auth,
   text: guard::CustomJson<Text>,
 ) -> DocumentActionResponder<Text> {
   let texts = Texts::new();
   let mut text = (*text).clone();
+  text.set_value();
   texts.insert(&mut text).await
 }
 
-#[put("/tex/<text_id>?<filter..>", format = "json", data = "<text>")]
+#[put("/text/<text_id>?<filter..>", format = "json", data = "<text>")]
 pub async fn update_item(
   _auth: guard::Auth,
   text_id: &str,
@@ -50,7 +51,7 @@ pub async fn update_item(
   texts.update(doc! { "value": text_id }, &filter, text).await
 }
 
-#[delete("/tex/<text>?<filter..>")]
+#[delete("/text/<text>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
   text: &str,

@@ -13,12 +13,15 @@ collection_wrapper!(Roles, Role, "role", ["role"]);
 
 impl Roles {
   fn filter_items<T: Clone + LinkRole>(items: Vec<T>, role_id: &str) -> Vec<T> {
-    items.into_iter().filter(|x| x.clone().role() == role_id).collect()
+    items
+      .into_iter()
+      .filter(|x| x.clone().role() == role_id)
+      .collect()
   }
 
   pub async fn aggregate(
     &self,
-    filter: &HashMap<&str, &str>,
+    filter: &HashMap<String, String>,
   ) -> error::Result<FindAllData<RoleAggregate>> {
     let timbres = Timbres::new();
     let costumes = Costumes::new();

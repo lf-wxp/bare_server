@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use mongodb::bson::doc;
 use rocket::serde::json::Json;
+use std::collections::HashMap;
 
 use crate::{
   collection::{ActionCategories, CollectionOperations},
@@ -13,7 +12,7 @@ use crate::{
 #[get("/action_category?<filter..>")]
 pub async fn get_list(
   _auth: guard::Auth,
-  filter: HashMap<&str, &str>,
+  filter: HashMap<String, String>,
 ) -> DocumentActionResponder<ActionCategory> {
   let action_categories = ActionCategories::new();
   action_categories.list(&filter).await
