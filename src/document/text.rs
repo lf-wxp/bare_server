@@ -13,12 +13,20 @@ pub struct Sprite {
   top_height: i64,
   bottom_height: i64,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ScaleType {
+  Proportional,
+  Free,
+}
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Bubble {
   name: Option<String>,
   value: Option<String>,
   image: String,
   sprite: Sprite,
+  scale_type: ScaleType,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
