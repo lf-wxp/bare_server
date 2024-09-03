@@ -23,6 +23,8 @@ pub struct Material {
 
 impl GenOptionValue for Material {
   fn set_value(&mut self) {
-    self.value = Some(nanoid!());
+    if self.value.is_none() {
+      self.value = Some(nanoid!());
+    }
   }
 }

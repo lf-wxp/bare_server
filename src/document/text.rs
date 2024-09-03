@@ -33,7 +33,9 @@ pub struct Bubble {
 
 impl GenOptionValue for Bubble {
   fn set_value(&mut self) {
-    self.value = Some(nanoid!());
+    if self.value.is_none() {
+      self.value = Some(nanoid!());
+    }
   }
 }
 
@@ -70,7 +72,9 @@ pub struct Text {
 
 impl GenOptionValue for Text {
   fn set_value(&mut self) {
-    self.value = Some(nanoid!());
+    if self.value.is_none() {
+      self.value = Some(nanoid!());
+    }
   }
 }
 
@@ -79,6 +83,7 @@ pub struct Font {
   pub value: Option<String>,
   pub name: String,
   pub weight: String,
+  url: String,
   provenance: Option<String>,
   expired: i64,
   enabled: bool,
@@ -88,7 +93,9 @@ pub struct Font {
 
 impl GenOptionValue for Font {
   fn set_value(&mut self) {
-    self.value = Some(nanoid!());
+    if self.value.is_none() {
+      self.value = Some(nanoid!());
+    }
   }
 }
 
