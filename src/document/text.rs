@@ -25,7 +25,7 @@ pub struct Bubble {
   name: Option<String>,
   value: Option<String>,
   image: String,
-  sprite: Sprite,
+  sprite: Option<Sprite>,
   scale_type: ScaleType,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
