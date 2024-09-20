@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
-use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Location, Timbre};
+use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Location, Options, Timbre};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Role {
@@ -9,15 +9,16 @@ pub struct Role {
   name: String,
   avatar: String,
   brief: String,
-  support_action_predict: bool,
-  support_action_generate: bool,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
   look_at: Option<Location>,
-  alg_support: Vec<AlgType>,
-  idle_weight_support: bool,
-  idle_expression_support: bool,
-  idle_expression_smile: Option<String>,
+  alg_support: Option<Vec<AlgType>>,
+  idle_expression_support: Option<bool>,
+  idle_expression_options: Option<Vec<Options<String>>>,
+  idle_action_support: Option<bool>,
+  custom_expression_support: Option<bool>,
+  action_predict_support: Option<bool>,
+  action_generate_support: Option<bool>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct RoleAggregate {
@@ -25,13 +26,14 @@ pub struct RoleAggregate {
   name: String,
   avatar: String,
   brief: String,
-  support_action_predict: bool,
-  support_action_generate: bool,
   look_at: Option<Location>,
-  alg_support: Vec<AlgType>,
-  idle_weight_support: bool,
-  idle_expression_support: bool,
-  idle_expression_smile: Option<String>,
+  alg_support: Option<Vec<AlgType>>,
+  custom_expression_support: Option<bool>,
+  idle_expression_support: Option<bool>,
+  idle_expression_options: Option<Vec<Options<String>>>,
+  idle_action_support: Option<bool>,
+  action_predict_support: Option<bool>,
+  action_generate_support: Option<bool>,
   pub timbres: Vec<Timbre>,
   pub hairdos: Vec<Hairdo>,
   pub costumes: Vec<CostumeWithCategory>,
@@ -44,13 +46,14 @@ impl From<Role> for RoleAggregate {
       name,
       avatar,
       brief,
-      support_action_predict,
-      support_action_generate,
+      action_predict_support,
+      action_generate_support,
       look_at,
       alg_support,
-      idle_weight_support,
       idle_expression_support,
-      idle_expression_smile,
+      idle_expression_options,
+      idle_action_support,
+      custom_expression_support,
       ..
     } = value;
 
@@ -59,13 +62,14 @@ impl From<Role> for RoleAggregate {
       name,
       avatar,
       brief,
-      support_action_predict,
-      support_action_generate,
       look_at,
+      action_predict_support,
+      action_generate_support,
       alg_support,
-      idle_weight_support,
       idle_expression_support,
-      idle_expression_smile,
+      idle_expression_options,
+      idle_action_support,
+      custom_expression_support,
       timbres: vec![],
       hairdos: vec![],
       costumes: vec![],
