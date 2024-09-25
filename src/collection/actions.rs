@@ -41,7 +41,7 @@ impl Actions {
           action: actions
             .clone()
             .into_iter()
-            .filter_map(|x| if x.category == name { Some(x) } else { None })
+            .filter_map(|x| if x.category == Some(name.clone()) { Some(x) } else { None })
             .collect(),
         }
       })

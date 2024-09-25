@@ -19,16 +19,16 @@ pub struct Action {
   static_image: String,
   motion_image: String,
   duration: f32,
-  pub category: String,
+  pub category: Option<String>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
-  associated_idle: String,
-  support_pointer: bool,
+  associated_idle: Option<String>,
+  support_pointer: Option<bool>,
   pointer_start: Option<i8>,
   pointer_end: Option<i8>,
   pointer_key: Option<i8>,
-  support_mirror: bool,
-  support_mouth_animation: bool,
+  support_mirror: Option<bool>,
+  support_mouth_animation: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
