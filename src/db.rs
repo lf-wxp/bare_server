@@ -16,9 +16,10 @@ pub async fn init_db() -> Result<(), Box<dyn Error>> {
 }
 
 pub fn get_db() -> mongodb::Database {
+  let db = get_config("DB");
   MONGO_CLIENT
     .get()
     .expect("MongoDB client is not initialized")
     .clone()
-    .database("aidh-config")
+    .database(&db)
 }
