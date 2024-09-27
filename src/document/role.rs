@@ -2,19 +2,22 @@ use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Options, Timbre};
-use crate::utils::serialize_bool_option;
+use crate::utils::{serialize_bool_option, serialize_string_option, serialize_vec_option};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Role {
   pub role: String,
   name: String,
   avatar: String,
-  brief: String,
+  #[serde(serialize_with = "serialize_string_option")]
+  brief: Option<String>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
+  #[serde(serialize_with = "serialize_vec_option")]
   alg_support: Option<Vec<AlgType>>,
   #[serde(serialize_with = "serialize_bool_option")]
   idle_expression_support: Option<bool>,
+  #[serde(serialize_with = "serialize_vec_option")]
   idle_expression_options: Option<Vec<Options<String>>>,
   #[serde(serialize_with = "serialize_bool_option")]
   idle_action_support: Option<bool>,
@@ -34,15 +37,25 @@ pub struct RoleAggregate {
   role: String,
   name: String,
   avatar: String,
-  brief: String,
+  #[serde(serialize_with = "serialize_string_option")]
+  brief: Option<String>,
+  #[serde(serialize_with = "serialize_vec_option")]
   alg_support: Option<Vec<AlgType>>,
+  #[serde(serialize_with = "serialize_bool_option")]
   custom_expression_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   idle_expression_support: Option<bool>,
+  #[serde(serialize_with = "serialize_vec_option")]
   idle_expression_options: Option<Vec<Options<String>>>,
+  #[serde(serialize_with = "serialize_bool_option")]
   idle_action_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   action_predict_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   action_generate_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   look_at_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   expression_support: Option<bool>,
   pub timbres: Vec<Timbre>,
   pub hairdos: Vec<Hairdo>,
