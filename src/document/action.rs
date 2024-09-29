@@ -19,7 +19,7 @@ pub struct Action {
   value: String,
   static_image: String,
   motion_image: String,
-  duration: f32,
+  duration: f64,
   #[serde(serialize_with = "serialize_string_option")]
   pub category: Option<String>,
   create_timestamp: Option<i64>,

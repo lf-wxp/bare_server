@@ -105,8 +105,10 @@ pub trait CollectionOperations {
                 .map(|bson| bson::from_bson(bson.clone()))
                 .collect::<Result<Vec<Self::Doc>, _>>()
             })
-            .unwrap_or(Ok(Vec::new()))
-            .unwrap_or_default();
+            .unwrap()
+            .unwrap();
+            // .unwrap_or(Ok(Vec::new()))
+            // .unwrap_or_default();
 
           let count = doc
             .get_document("count")
