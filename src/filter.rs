@@ -1,5 +1,6 @@
 use mongodb::bson::{doc, Document};
 use serde::{Deserialize, Serialize};
+use core::f32;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
@@ -34,7 +35,7 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
     let mut query = doc! {};
     let mut sort = doc! { "create_timestamp": -1 };
     let mut page = 1f32;
-    let mut limit = 10f32;
+    let mut limit = u32::MAX as f32;
 
     let mut sort_name = None;
     let mut sort_order = 1;
@@ -54,7 +55,7 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
           page = value_str.parse::<f32>().unwrap_or(1f32);
         }
         "size" => {
-          limit = value_str.parse::<f32>().unwrap_or(10000f32);
+          limit = value_str.parse::<f32>().unwrap_or(u32::MAX as f32);
         }
         _ => {
           let operator = match key_str.rfind("_") {
