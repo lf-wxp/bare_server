@@ -5,6 +5,13 @@ use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Options, 
 use crate::utils::{serialize_bool_option, serialize_string_option, serialize_vec_option};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
+pub struct  IdleExpression {
+  label: String,
+  value: String,
+  alg: Vec<AlgType>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Role {
   pub role: String,
   name: String,
@@ -18,7 +25,7 @@ pub struct Role {
   #[serde(serialize_with = "serialize_bool_option")]
   idle_expression_support: Option<bool>,
   #[serde(serialize_with = "serialize_vec_option")]
-  idle_expression_options: Option<Vec<Options<String>>>,
+  idle_expression_options: Option<Vec<IdleExpression>>,
   #[serde(serialize_with = "serialize_bool_option")]
   idle_action_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
@@ -48,7 +55,7 @@ pub struct RoleAggregate {
   #[serde(serialize_with = "serialize_bool_option")]
   idle_expression_support: Option<bool>,
   #[serde(serialize_with = "serialize_vec_option")]
-  idle_expression_options: Option<Vec<Options<String>>>,
+  idle_expression_options: Option<Vec<IdleExpression>>,
   #[serde(serialize_with = "serialize_bool_option")]
   idle_action_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
