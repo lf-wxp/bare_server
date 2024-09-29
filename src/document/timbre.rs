@@ -18,7 +18,7 @@ pub struct Timbre {
   image: Option<String>,
   gender: Gender,
   emotion: String,
-  audio: String,
+  audio: Option<String>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
