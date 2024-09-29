@@ -24,6 +24,8 @@ pub struct Role {
   #[serde(serialize_with = "serialize_bool_option")]
   expression_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
+  expression_predict_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
   look_at_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
   custom_expression_support: Option<bool>,
@@ -57,6 +59,8 @@ pub struct RoleAggregate {
   look_at_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
   expression_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
+  expression_predict_support: Option<bool>,
   pub timbres: Vec<Timbre>,
   pub hairdos: Vec<Hairdo>,
   pub costumes: Vec<CostumeWithCategory>,
@@ -76,6 +80,7 @@ impl From<Role> for RoleAggregate {
       idle_expression_options,
       idle_action_support,
       expression_support,
+      expression_predict_support,
       look_at_support,
       custom_expression_support,
       ..
@@ -90,6 +95,7 @@ impl From<Role> for RoleAggregate {
       action_generate_support,
       alg_support,
       expression_support,
+      expression_predict_support,
       idle_expression_support,
       idle_expression_options,
       idle_action_support,
