@@ -17,8 +17,7 @@ pub async fn get_aggregate_list(
 ) -> DocumentActionResponder<FontAggregate> {
   let fonts = Fonts::new();
   let mut filter = filter;
-  let data = fonts.aggregate(&mut filter).await;
-  DocumentActionResponder::FindAll(data)
+  fonts.aggregate(&mut filter).await.into()
 }
 
 #[get("/font?<filter..>")]

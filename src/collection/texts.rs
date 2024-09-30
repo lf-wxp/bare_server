@@ -1,5 +1,5 @@
+use anyhow::Result;
 use chrono::Utc;
-use mongodb::error;
 use std::collections::HashMap;
 
 use crate::{
@@ -20,7 +20,7 @@ impl Fonts {
   pub async fn aggregate(
     &self,
     filter: &mut HashMap<String, String>,
-  ) -> error::Result<FindAllData<FontAggregate>> {
+  ) -> Result<FindAllData<FontAggregate>> {
     let fonts = Fonts::new();
     let timestamp_str = Utc::now().timestamp().to_string();
     filter.insert("expired_gt".to_string(), timestamp_str);

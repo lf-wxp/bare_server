@@ -15,8 +15,7 @@ pub async fn get_aggregate_list(
   filter: HashMap<String, String>,
 ) -> DocumentActionResponder<RoleAggregate> {
   let roles = Roles::new();
-  let data = roles.aggregate(&filter).await;
-  DocumentActionResponder::FindAll(data)
+  roles.aggregate(&filter).await.into()
 }
 
 #[get("/role?<filter..>")]

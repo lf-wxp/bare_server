@@ -15,8 +15,7 @@ pub async fn get_aggregate_list(
   filter: HashMap<String, String>,
 ) -> DocumentActionResponder<ActionWithCategory> {
   let actions = Actions::new();
-  let data = actions.aggregate(&filter).await;
-  DocumentActionResponder::FindAll(data)
+  actions.aggregate(&filter).await.into()
 }
 
 #[get("/action?<filter..>")]

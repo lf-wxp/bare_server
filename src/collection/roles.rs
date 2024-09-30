@@ -1,4 +1,4 @@
-use mongodb::error;
+use anyhow::Result;
 use std::collections::HashMap;
 
 use crate::{
@@ -22,7 +22,7 @@ impl Roles {
   pub async fn aggregate(
     &self,
     filter: &HashMap<String, String>,
-  ) -> error::Result<FindAllData<RoleAggregate>> {
+  ) -> Result<FindAllData<RoleAggregate>> {
     let timbres = Timbres::new();
     let costumes = Costumes::new();
     let hairdos = Hairdos::new();

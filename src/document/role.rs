@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
-use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Options, Timbre};
+use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Timbre};
 use crate::utils::{serialize_bool_option, serialize_string_option, serialize_vec_option};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
-pub struct  IdleExpression {
+pub struct IdleExpression {
   label: String,
   value: String,
   alg: Vec<AlgType>,

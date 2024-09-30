@@ -1,11 +1,12 @@
+use anyhow::{anyhow, Result};
 use chrono::Utc;
 use futures::StreamExt;
 use mongodb::{
   bson::{self, doc, from_document, to_document, Document},
-  error, Collection,
+  Collection,
 };
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt::Debug, io};
+use std::{collections::HashMap, fmt::Debug};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 pub mod actions;
@@ -57,16 +58,11 @@ pub trait CollectionOperations {
     doc.insert("create_timestamp", now);
     doc.insert("update_timestamp", now);
     let doc = from_document::<Self::Doc>(doc).unwrap();
-    let result = self.collection().insert_one(doc).await;
-    DocumentActionResponder::Insert(result)
+    self.collection().insert_one(doc).await.into()
   }
 
-  async fn list_pure(
-    &self,
-    filter: &HashMap<String, String>,
-  ) -> error::Result<FindAllData<Self::Doc>> {
+  async fn list_pure(&self, filter: &HashMap<String, String>) -> Result<FindAllData<Self::Doc>> {
     let (query, sort, skip, limit) = filter.parse(Self::Doc::FIELD_NAMES_AS_SLICE);
-    println!("filter {:?}", &query);
     let pipeline = vec![
       doc! {
         "$match":query
@@ -92,43 +88,30 @@ pub trait CollectionOperations {
         }
       },
     ];
-    let result = self.collection().aggregate(pipeline).await;
-    match result {
-      Ok(mut cursor) => {
-        let result = cursor.next().await;
-        if let Some(Ok(doc)) = result {
-          let list: Vec<Self::Doc> = doc
-            .get_array("list")
-            .map(|bson_array| {
-              bson_array
-                .iter()
-                .map(|bson| bson::from_bson(bson.clone()))
-                .collect::<Result<Vec<Self::Doc>, _>>()
-            })
-            .unwrap()
-            .unwrap();
-            // .unwrap_or(Ok(Vec::new()))
-            // .unwrap_or_default();
+    let result = self.collection().aggregate(pipeline).await?;
+    let mut cursor = result;
+    let doc = cursor
+      .next()
+      .await
+      .ok_or_else(|| anyhow!("Failed to get result"))??;
 
-          let count = doc
-            .get_document("count")
-            .and_then(|count_doc| count_doc.get_i32("count"))
-            .unwrap_or(0) as usize;
-          Ok(FindAllData { list, count })
-        } else {
-          Err(error::Error::from(io::Error::new(
-            io::ErrorKind::Other,
-            "Failed to get result",
-          )))
-        }
-      }
-      Err(e) => Err(e),
-    }
+    let list = doc.get_array("list").map(|bson_array| {
+      bson_array
+        .iter()
+        .map(|bson| bson::from_bson(bson.clone()))
+        .collect::<Result<Vec<Self::Doc>, _>>()
+    })??;
+
+    let count = doc
+      .get_document("count")
+      .and_then(|count_doc| count_doc.get_i32("count"))
+      .unwrap_or(0) as usize;
+
+    Ok(FindAllData { list, count })
   }
 
   async fn list(&self, filter: &HashMap<String, String>) -> DocumentActionResponder<Self::Doc> {
-    let result = self.list_pure(&filter).await;
-    DocumentActionResponder::FindAll(result)
+    self.list_pure(&filter).await.into()
   }
 
   async fn find_one(
@@ -137,7 +120,7 @@ pub trait CollectionOperations {
     filter: &HashMap<&str, &str>,
   ) -> DocumentActionResponder<Self::Doc> {
     exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
-    DocumentActionResponder::FindOne(self.collection().find_one(exact_filter).await)
+    self.collection().find_one(exact_filter).await.into()
   }
 
   async fn update(
@@ -151,12 +134,11 @@ pub trait CollectionOperations {
     item.insert("update_timestamp", now);
     let item = doc! { "$set": item };
     exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
-    DocumentActionResponder::Update(
-      self
-        .collection()
-        .find_one_and_update(exact_filter, item)
-        .await,
-    )
+    self
+      .collection()
+      .find_one_and_update(exact_filter, item)
+      .await
+      .into()
   }
 
   async fn delete(
@@ -165,11 +147,11 @@ pub trait CollectionOperations {
     filter: &HashMap<&str, &str>,
   ) -> DocumentActionResponder<Self::Doc> {
     exact_filter.extend(filter.query(Self::Doc::FIELD_NAMES_AS_SLICE));
-    DocumentActionResponder::Delete(self.collection().find_one_and_delete(exact_filter).await)
-  }
-
-  async fn drop(&self) -> DocumentActionResponder<Self::Doc> {
-    DocumentActionResponder::Drop(self.collection().drop().await)
+    self
+      .collection()
+      .find_one_and_delete(exact_filter)
+      .await
+      .into()
   }
 }
 
