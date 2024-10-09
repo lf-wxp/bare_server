@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::{
   collection_wrapper,
-  document::{Bubble, Font, FontAggregate, Options, Text},
+  document::{Bubble, Font, FontAggregate, Options, Text, WeightOption},
   responder::FindAllData,
 };
 
@@ -25,14 +25,15 @@ impl Fonts {
     let timestamp_str = Utc::now().timestamp().to_string();
     filter.insert("expired_gt".to_string(), timestamp_str);
     let FindAllData { list, .. } = fonts.list_pure(filter).await?;
-    let mut font_map: HashMap<String, Vec<Options<Option<String>>>> = HashMap::new();
+    let mut font_map: HashMap<String, Vec<WeightOption>> = HashMap::new();
     list.into_iter().for_each(|font| {
       font_map
         .entry(font.name.clone())
         .or_insert_with(Vec::new)
-        .push(Options {
+        .push( WeightOption {
           label: font.weight.clone(),
           value: font.value,
+          url: font.url,
         });
     });
     let list: Vec<FontAggregate> = font_map

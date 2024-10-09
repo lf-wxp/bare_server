@@ -4,7 +4,12 @@ use struct_field_names_as_array::FieldNamesAsSlice;
 
 use crate::utils::GenOptionValue;
 
-use super::Options;
+#[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
+pub struct WeightOption{
+  pub label: String,
+  pub value: Option<String>,
+  pub url: String,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sprite {
@@ -83,7 +88,7 @@ pub struct Font {
   pub value: Option<String>,
   pub name: String,
   pub weight: String,
-  url: String,
+  pub url: String,
   provenance: Option<String>,
   expired: i64,
   enabled: bool,
@@ -102,5 +107,5 @@ impl GenOptionValue for Font {
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct FontAggregate {
   pub name: String,
-  pub weight_options: Vec<Options<Option<String>>>,
+  pub weight_options: Vec<WeightOption>,
 }
