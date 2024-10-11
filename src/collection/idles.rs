@@ -16,5 +16,5 @@ collection_wrapper!(
   IdleMappings,
   IdleMapping,
   "idle-mapping",
-  ["role", "start", "end", "transition"]
+  ["role", "start", "end"]
 );
