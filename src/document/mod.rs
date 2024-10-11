@@ -42,3 +42,12 @@ pub struct Options<T> {
 pub trait LinkRole {
   fn role(&self) -> String;
 }
+
+pub trait LinkRoleFilter<T: LinkRole>: IntoIterator<Item = T> + Sized {
+  fn filter_items(self, role_id: &str) -> Vec<T> {
+    self
+      .into_iter()
+      .filter(|item| item.role() == role_id)
+      .collect()
+  }
+}

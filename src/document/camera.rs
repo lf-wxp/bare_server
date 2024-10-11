@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
+use crate::utils::GenOptionValue;
+
 use super::Options;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -27,3 +29,5 @@ pub struct Camera {
   default_speed: f64,
   direction_options: Vec<Options<bool>>,
 }
+
+impl GenOptionValue for Camera {}

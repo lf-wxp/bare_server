@@ -5,7 +5,7 @@ use struct_field_names_as_array::FieldNamesAsSlice;
 use crate::utils::GenOptionValue;
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
-pub struct WeightOption{
+pub struct WeightOption {
   pub label: String,
   pub value: Option<String>,
   pub url: String,
@@ -109,3 +109,5 @@ pub struct FontAggregate {
   pub name: String,
   pub weight_options: Vec<WeightOption>,
 }
+
+impl GenOptionValue for FontAggregate {}

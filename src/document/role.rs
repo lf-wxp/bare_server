@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::{algorithm::AlgType, CostumeWithCategory, Hairdo, LinkRole, Timbre};
-use crate::utils::{serialize_bool_option, serialize_string_option, serialize_vec_option};
+use crate::utils::{
+  serialize_bool_option, serialize_string_option, serialize_vec_option, GenOptionValue,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct IdleExpression {
@@ -41,6 +43,9 @@ pub struct Role {
   #[serde(serialize_with = "serialize_bool_option")]
   action_generate_support: Option<bool>,
 }
+
+impl GenOptionValue for Role {}
+
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct RoleAggregate {
   role: String,
@@ -72,6 +77,8 @@ pub struct RoleAggregate {
   pub hairdos: Vec<Hairdo>,
   pub costumes: Vec<CostumeWithCategory>,
 }
+
+impl GenOptionValue for RoleAggregate {}
 
 impl From<Role> for RoleAggregate {
   fn from(value: Role) -> Self {

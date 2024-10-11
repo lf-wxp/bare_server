@@ -3,6 +3,7 @@ use rocket::serde::json::Json;
 use std::collections::HashMap;
 
 use crate::{
+  batch_params::BatchUpdateItem,
   collection::{CollectionOperations, IdleMappings},
   document::IdleMapping,
   guard,
@@ -72,6 +73,42 @@ pub async fn delete_item(
     .await
 }
 
+#[patch("/idle_mapping_batch", format = "json", data = "<batch_filter>")]
+pub async fn batch_delete(
+  _auth: guard::Auth,
+  batch_filter: Json<Vec<HashMap<String, String>>>,
+) -> DocumentActionResponder<IdleMapping> {
+  let idle_mappings = IdleMappings::new();
+  idle_mappings.batch_delete(batch_filter.into()).await
+}
+
+#[put("/idle_mapping_batch", format = "json", data = "<batch_update>")]
+pub async fn batch_update(
+  _auth: guard::Auth,
+  batch_update: Json<Vec<BatchUpdateItem<IdleMapping>>>,
+) -> DocumentActionResponder<IdleMapping> {
+  let idle_mappings = IdleMappings::new();
+  idle_mappings.batch_update(batch_update.into()).await
+}
+
+#[post("/idle_mapping_batch", format = "json", data = "<batch_insert>")]
+pub async fn batch_insert(
+  _auth: guard::Auth,
+  batch_insert: guard::CustomJson<Vec<IdleMapping>>,
+) -> DocumentActionResponder<IdleMapping> {
+  let idle_mappings = IdleMappings::new();
+  idle_mappings.batch_insert(batch_insert.into()).await
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-  routes![get_item, get_list, add_item, update_item, delete_item]
+  routes![
+    get_item,
+    get_list,
+    add_item,
+    update_item,
+    delete_item,
+    batch_delete,
+    batch_update,
+    batch_insert
+  ]
 }

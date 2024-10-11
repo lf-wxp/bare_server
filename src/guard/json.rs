@@ -23,6 +23,10 @@ impl<'r, T: Deserialize<'r>> CustomJson<T> {
       .map_err(|e| Error::Parse(s, e))
   }
 
+  pub fn into_inner(self) -> T {
+    self.0
+  }
+
   async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> Result<Self, Error<'r>> {
     let limit = req.limits().get("json").unwrap_or(Limits::JSON);
     let string = match data.open(limit).into_string().await {

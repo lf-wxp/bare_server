@@ -36,16 +36,25 @@ pub use texts::*;
 pub use timbres::*;
 
 use crate::{
+  batch_params::{BatchDelete, BatchInsert, BatchUpdate},
+  document::LinkRole,
   filter::Filter,
   responder::{DocumentActionResponder, FindAllData},
+  utils::GenOptionValue,
 };
 
 pub trait DocWrap:
-  Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync + FieldNamesAsSlice
+  Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync + FieldNamesAsSlice + GenOptionValue
 {
 }
 impl<T> DocWrap for T where
-  T: Serialize + Debug + for<'de> Deserialize<'de> + Send + Sync + FieldNamesAsSlice
+  T: Serialize
+    + Debug
+    + for<'de> Deserialize<'de>
+    + Send
+    + Sync
+    + FieldNamesAsSlice
+    + GenOptionValue
 {
 }
 
@@ -152,6 +161,34 @@ pub trait CollectionOperations {
       .find_one_and_delete(exact_filter)
       .await
       .into()
+  }
+
+  async fn batch_update(
+    &self,
+    batch_update_data: BatchUpdate<Self::Doc>,
+  ) -> DocumentActionResponder<Self::Doc> {
+    let namespace = self.collection().namespace();
+    let client = self.collection().client();
+    let models = batch_update_data.model(namespace);
+    client.bulk_write(models).await.into()
+  }
+
+  async fn batch_delete(&self, batch_filter: BatchDelete) -> DocumentActionResponder<Self::Doc> {
+    let namespace = self.collection().namespace();
+    let client = self.collection().client();
+    let models = batch_filter.model(namespace, Self::Doc::FIELD_NAMES_AS_SLICE);
+    client.bulk_write(models).await.into()
+  }
+
+  async fn batch_insert(
+    &self,
+    batch_insert: BatchInsert<Self::Doc>,
+  ) -> DocumentActionResponder<Self::Doc> {
+    let namespace = self.collection().namespace();
+    let client = self.collection().client();
+    let mut batch_insert = batch_insert;
+    let models = batch_insert.model(namespace);
+    client.bulk_write(models).await.into()
   }
 }
 

@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
+use crate::utils::GenOptionValue;
+
 use super::Options;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -19,3 +21,5 @@ pub struct Algorithm {
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
+
+impl GenOptionValue for Algorithm {}

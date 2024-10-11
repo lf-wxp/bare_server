@@ -13,6 +13,8 @@ pub struct IdleTransition {
   update_timestamp: Option<i64>,
 }
 
+impl GenOptionValue for IdleTransition {}
+
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Idle {
   role: String,
@@ -24,6 +26,8 @@ pub struct Idle {
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
+
+impl GenOptionValue for Idle {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct IdleMapping {

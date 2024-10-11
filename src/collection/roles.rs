@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
   collection_wrapper,
-  document::{LinkRole, Role, RoleAggregate},
+  document::{LinkRoleFilter, Role, RoleAggregate},
   responder::FindAllData,
 };
 
@@ -12,13 +12,6 @@ use super::{CollectionOperations, Costumes, Hairdos, Timbres};
 collection_wrapper!(Roles, Role, "role", ["role"]);
 
 impl Roles {
-  fn filter_items<T: Clone + LinkRole>(items: Vec<T>, role_id: &str) -> Vec<T> {
-    items
-      .into_iter()
-      .filter(|x| x.clone().role() == role_id)
-      .collect()
-  }
-
   pub async fn aggregate(
     &self,
     filter: &HashMap<String, String>,
@@ -35,9 +28,9 @@ impl Roles {
       .map(|role| {
         let role_id = role.role.clone();
         let mut role_aggregate = RoleAggregate::from(role);
-        role_aggregate.timbres = Self::filter_items(timbres.clone(), &role_id);
-        role_aggregate.hairdos = Self::filter_items(hairdos.clone(), &role_id);
-        role_aggregate.costumes = Self::filter_items(costumes.clone(), &role_id);
+        role_aggregate.timbres = timbres.clone().filter_items(&role_id);
+        role_aggregate.hairdos = hairdos.clone().filter_items(&role_id);
+        role_aggregate.costumes = costumes.clone().filter_items(&role_id);
         role_aggregate
       })
       .collect();

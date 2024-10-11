@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
-use crate::utils::serialize_bool_option;
+use crate::utils::{serialize_bool_option, GenOptionValue};
 
-use super::LinkRole;
+use super::{LinkRole, LinkRoleFilter};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct CostumeCategory {
@@ -14,6 +14,8 @@ pub struct CostumeCategory {
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
+
+impl GenOptionValue for CostumeCategory {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Costume {
@@ -27,6 +29,8 @@ pub struct Costume {
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
+
+impl GenOptionValue for Costume {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct CostumeWithCategory {
@@ -49,5 +53,22 @@ impl LinkRole for CostumeCategory {
 impl LinkRole for CostumeWithCategory {
   fn role(&self) -> String {
     self.role.clone()
+  }
+}
+
+impl LinkRoleFilter<Costume> for Vec<Costume> {}
+
+impl LinkRoleFilter<CostumeWithCategory> for Vec<CostumeWithCategory> {
+  fn filter_items(mut self, role_id: &str) -> Vec<CostumeWithCategory> {
+    self
+      .iter_mut()
+      .filter_map(|item| {
+        if item.role() != role_id {
+          return  None;
+        }
+        item.costume = item.costume.clone().filter_items(role_id);
+        return Some(item.clone());
+      })
+      .collect()
   }
 }

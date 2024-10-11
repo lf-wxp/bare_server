@@ -2,7 +2,8 @@
     "language": "en",
     "words": [
         "bson",
-        "NONGO"
+        "NONGO",
+        "upserted"
     ],
     "flagWords": [],
     "version": "0.2"

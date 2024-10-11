@@ -23,3 +23,10 @@ pub fn get_db() -> mongodb::Database {
     .clone()
     .database(&db)
 }
+
+pub fn get_client() -> mongodb::Client {
+  MONGO_CLIENT
+    .get()
+    .expect("MongoDB client is not initialized")
+    .clone()
+}

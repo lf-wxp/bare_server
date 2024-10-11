@@ -3,6 +3,7 @@ use rocket::serde::json::Json;
 use std::collections::HashMap;
 
 use crate::{
+  batch_params::BatchUpdateItem,
   collection::{Actions, CollectionOperations},
   document::{Action, ActionWithCategory},
   guard,
@@ -70,6 +71,33 @@ pub async fn delete_item(
   actions.delete(doc! { "value": action }, &filter).await
 }
 
+#[patch("/action_batch", format = "json", data = "<batch_filter>")]
+pub async fn batch_delete(
+  _auth: guard::Auth,
+  batch_filter: Json<Vec<HashMap<String, String>>>,
+) -> DocumentActionResponder<Action> {
+  let actions = Actions::new();
+  actions.batch_delete(batch_filter.into()).await
+}
+
+#[put("/action_batch", format = "json", data = "<batch_update>")]
+pub async fn batch_update(
+  _auth: guard::Auth,
+  batch_update: Json<Vec<BatchUpdateItem<Action>>>,
+) -> DocumentActionResponder<Action> {
+  let actions = Actions::new();
+  actions.batch_update(batch_update.into()).await
+}
+
+#[post("/action_batch", format = "json", data = "<batch_insert>")]
+pub async fn batch_insert(
+  _auth: guard::Auth,
+  batch_insert: guard::CustomJson<Vec<Action>>,
+) -> DocumentActionResponder<Action> {
+  let actions = Actions::new();
+  actions.batch_insert(batch_insert.into()).await
+}
+
 pub fn routes() -> Vec<rocket::Route> {
   routes![
     get_item,
@@ -77,6 +105,9 @@ pub fn routes() -> Vec<rocket::Route> {
     get_aggregate_list,
     add_item,
     update_item,
-    delete_item
+    delete_item,
+    batch_insert,
+    batch_update,
+    batch_delete
   ]
 }

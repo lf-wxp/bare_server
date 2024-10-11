@@ -59,6 +59,15 @@ pub async fn delete_item(
   idles.delete(doc! { "value": idle }, &filter).await
 }
 
+#[delete("/idle_batch", format = "json", data = "<batch_filter>")]
+pub async fn batch_delete_item(
+  _auth: guard::Auth,
+  batch_filter: Json<Vec<HashMap<String, String>>>,
+) -> DocumentActionResponder<Idle> {
+  let idles = Idles::new();
+  idles.batch_delete(batch_filter.into()).await
+}
+
 pub fn routes() -> Vec<rocket::Route> {
   routes![get_item, get_list, add_item, update_item, delete_item]
 }

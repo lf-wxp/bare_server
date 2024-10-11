@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
 use super::LinkRole;
-use crate::utils::{serialize_bool_option, serialize_string_option};
+use crate::utils::{serialize_bool_option, serialize_string_option, GenOptionValue};
 
 #[derive(Serialize, Deserialize, Debug, FieldNamesAsSlice, Clone)]
 pub struct ActionCategory {
@@ -11,6 +11,8 @@ pub struct ActionCategory {
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
+
+impl GenOptionValue for ActionCategory {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Action {
@@ -37,12 +39,16 @@ pub struct Action {
   support_mouth_animation: Option<bool>,
 }
 
+impl GenOptionValue for Action {}
+
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct ActionWithCategory {
   pub role: String,
   pub category: String,
   pub action: Vec<Action>,
 }
+
+impl GenOptionValue for ActionWithCategory {}
 
 impl LinkRole for ActionCategory {
   fn role(&self) -> String {

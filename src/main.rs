@@ -13,6 +13,7 @@ mod utils;
 #[macro_use]
 mod collection;
 mod api;
+mod batch_params;
 mod catcher;
 mod config;
 mod document;

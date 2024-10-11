@@ -1,13 +1,22 @@
+use core::f32;
 use mongodb::bson::{doc, Document};
 use serde::{Deserialize, Serialize};
-use core::f32;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use crate::utils::get_compare_doc;
 pub trait Filter {
-  fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32);
-  fn query(&self, fields: &[&str]) -> Document;
+  fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32) {
+    let _ = fields;
+    (doc! {}, doc! {}, 0.0, 0.0)
+  }
+  fn query(&self, fields: &[&str]) -> Document {
+    let _ = fields;
+    doc! {}
+  }
+  fn exact(&self, fields: &[&str]) -> Document {
+    let _ = fields;
+    doc! {}
+  }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -32,7 +41,6 @@ pub enum ReserveKey {
 
 impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
   fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32) {
-    let mut query = doc! {};
     let mut sort = doc! { "create_timestamp": -1 };
     let mut page = 1f32;
     let mut limit = u32::MAX as f32;
@@ -57,30 +65,7 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
         "size" => {
           limit = value_str.parse::<f32>().unwrap_or(u32::MAX as f32);
         }
-        _ => {
-          let operator = match key_str.rfind("_") {
-            Some(index) => &key_str[index + 1..],
-            None => "equal",
-          };
-          let field_name = if operator == "equal" {
-            &key_str
-          } else {
-            &key_str[..key_str.len() - operator.len() - 1]
-          };
-
-          if fields.contains(&field_name) {
-            let condition = match operator {
-              "gte" => get_compare_doc("$gte", value_str),
-              "gt" => get_compare_doc("$gt", value_str),
-              "lte" => get_compare_doc("$lte", value_str),
-              "lt" => get_compare_doc("$lt", value_str),
-              "contains" => doc! { "$regex": value_str, "$options": "i" },
-              "equal" => doc! { "$eq": value_str },
-              _ => doc! {},
-            };
-            query.insert(field_name, condition);
-          }
-        }
+        _ => {}
       }
     }
 
@@ -88,10 +73,13 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
       sort = doc! { sort_field: sort_order };
     }
 
+    let query = self.query(fields);
+
     let skip = (page - 1f32) * limit;
 
     (query, sort, skip, limit)
   }
+
   fn query(&self, fields: &[&str]) -> Document {
     let mut query = doc! {};
     for (key, value) in self {
@@ -123,5 +111,39 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
       }
     }
     query
+  }
+
+  fn exact(&self, fields: &[&str]) -> Document {
+    let mut query = doc! {};
+    for (key, value) in self {
+      let key_str = key.to_string();
+      let value_str = value.to_string();
+      if fields.contains(&key_str.as_str()) {
+        query.insert(key_str, value_str);
+      }
+    }
+    query
+  }
+}
+
+impl<K: ToString, V: ToString> Filter for Vec<HashMap<K, V>> {
+  fn query(&self, fields: &[&str]) -> Document {
+    let doc = self
+      .iter()
+      .map(|item| {
+        let mut query = doc! {};
+        for (key, value) in item {
+          let key_str = key.to_string();
+          let value_str = value.to_string();
+          if fields.contains(&key_str.as_str()) {
+            query.insert(key_str, value_str);
+          }
+        }
+        query
+      })
+      .collect::<Vec<Document>>();
+    doc! {
+      "$or": doc
+    }
   }
 }

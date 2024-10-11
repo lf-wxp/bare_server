@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
 
-use super::LinkRole;
+use crate::utils::GenOptionValue;
+
+use super::{LinkRole, LinkRoleFilter};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Hairdo {
@@ -13,8 +15,12 @@ pub struct Hairdo {
   update_timestamp: Option<i64>,
 }
 
+impl GenOptionValue for Hairdo {}
+
 impl LinkRole for Hairdo {
   fn role(&self) -> String {
     self.role.clone()
   }
 }
+
+impl LinkRoleFilter<Hairdo> for Vec<Hairdo> {}
