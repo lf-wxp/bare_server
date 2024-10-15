@@ -98,10 +98,10 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
 
         if fields.contains(&field_name) {
           let condition = match operator {
-            "gte" => doc! { "$gte": value_str },
-            "gt" => doc! { "$gt": value_str },
-            "lte" => doc! { "$lte": value_str },
-            "lt" => doc! { "$lt": value_str },
+            "gte" => doc! { "$gte": value_str.parse().unwrap_or(0) },
+            "gt" => doc! { "$gt": value_str.parse().unwrap_or(0) },
+            "lte" => doc! { "$lte": value_str.parse().unwrap_or(0) },
+            "lt" => doc! { "$lt": value_str.parse().unwrap_or(0) },
             "contains" => doc! { "$regex": value_str, "$options": "i" },
             "equal" => doc! { "$eq": value_str },
             _ => doc! {},

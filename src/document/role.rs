@@ -42,6 +42,8 @@ pub struct Role {
   action_predict_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
   action_generate_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
+  dress_up_support: Option<bool>,
 }
 
 impl GenOptionValue for Role {}
@@ -73,6 +75,8 @@ pub struct RoleAggregate {
   expression_support: Option<bool>,
   #[serde(serialize_with = "serialize_bool_option")]
   expression_predict_support: Option<bool>,
+  #[serde(serialize_with = "serialize_bool_option")]
+  dress_up_support: Option<bool>,
   pub timbres: Vec<Timbre>,
   pub hairdos: Vec<Hairdo>,
   pub costumes: Vec<CostumeWithCategory>,
@@ -97,6 +101,7 @@ impl From<Role> for RoleAggregate {
       expression_predict_support,
       look_at_support,
       custom_expression_support,
+      dress_up_support,
       ..
     } = value;
 
@@ -115,6 +120,7 @@ impl From<Role> for RoleAggregate {
       idle_action_support,
       custom_expression_support,
       look_at_support,
+      dress_up_support,
       timbres: vec![],
       hairdos: vec![],
       costumes: vec![],
