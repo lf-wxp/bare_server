@@ -1,8 +1,7 @@
 use core::f32;
 use mongodb::bson::{doc, Document};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fmt::Debug;
+use std::{collections::HashMap, fmt::Debug, str::FromStr};
 
 pub trait Filter {
   fn parse(&self, fields: &[&str]) -> (Document, Document, f32, f32) {
@@ -103,7 +102,10 @@ impl<K: ToString, V: ToString> Filter for HashMap<K, V> {
             "lte" => doc! { "$lte": value_str.parse().unwrap_or(0) },
             "lt" => doc! { "$lt": value_str.parse().unwrap_or(0) },
             "contains" => doc! { "$regex": value_str, "$options": "i" },
-            "equal" => doc! { "$eq": value_str },
+            "equal" => match bool::from_str(&value_str) {
+              Ok(val) => doc! { "$eq": val },
+              Err(_) => doc! { "$eq": value_str },
+            },
             _ => doc! {},
           };
           query.insert(field_name, condition);
