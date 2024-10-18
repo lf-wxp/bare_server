@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use struct_field_names_as_array::FieldNamesAsSlice;
+use nanoid::nanoid;
 
 use crate::utils::{serialize_bool_option, GenOptionValue};
 
@@ -9,13 +10,20 @@ use super::{LinkRole, LinkRoleFilter};
 pub struct CostumeCategory {
   pub role: String,
   pub name: String,
+  pub value: Option<String>,
   #[serde(serialize_with = "serialize_bool_option")]
   pub required: Option<bool>,
   create_timestamp: Option<i64>,
   update_timestamp: Option<i64>,
 }
 
-impl GenOptionValue for CostumeCategory {}
+impl GenOptionValue for CostumeCategory {
+  fn set_value(&mut self) {
+    if self.value.is_none() {
+      self.value = Some(nanoid!());
+    }
+  }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, FieldNamesAsSlice)]
 pub struct Costume {

@@ -61,3 +61,35 @@ pub fn get_compare_doc(operator: &str, value: String) -> Document {
     Err(_) => doc! { operator: value },
   }
 }
+
+fn recurse_and_modify(value: &mut Value) {
+  match value {
+    Value::Object(obj) => {
+      println!("bbbbbbb");
+      for (_, val) in obj.iter_mut() {
+        recurse_and_modify(val);
+      }
+    }
+    Value::Array(arr) => {
+      for item in arr.iter_mut() {
+        recurse_and_modify(item);
+      }
+    }
+    Value::String(s) => {
+      println!("deal string {}", s);
+      let new_val = s.replace("\\\"", "\"");
+      *value = Value::String(new_val);
+    }
+    _ => {} // 对于非对象和非字符串类型不做处理
+  }
+}
+
+pub fn escape_value(value: Option<Value>) -> Option<Value> {
+  match value {
+    Some(mut value) => {
+      recurse_and_modify(&mut value);
+      Some(value)
+    }
+    None => None,
+  }
+}

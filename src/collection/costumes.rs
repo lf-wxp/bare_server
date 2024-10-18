@@ -15,7 +15,7 @@ collection_wrapper!(
   CostumeCategories,
   CostumeCategory,
   "costume-category",
-  ["name", "role"]
+  ["name", "role", "value"]
 );
 
 impl Costumes {
@@ -37,6 +37,7 @@ impl Costumes {
         let CostumeCategory {
           name,
           role,
+          value,
           required,
           ..
         } = category;
@@ -47,7 +48,13 @@ impl Costumes {
           costume: costumes
             .clone()
             .into_iter()
-            .filter_map(|x| if x.category == name { Some(x) } else { None })
+            .filter_map(|x| {
+              if x.category == value.clone().unwrap_or("".to_string()) {
+                Some(x)
+              } else {
+                None
+              }
+            })
             .collect(),
         }
       })

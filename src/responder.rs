@@ -13,7 +13,7 @@ use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use serde_json::{json, to_string, Value};
 use std::io::Cursor;
 
-use crate::collection::DocWrap;
+use crate::{collection::DocWrap, utils::escape_value};
 
 #[derive(Debug, Clone)]
 pub struct BulkResult(SummaryBulkWriteResult);
@@ -168,6 +168,7 @@ impl<'r, T: DocWrap> Responder<'r, 'static> for DocumentActionResponder<T> {
     } else {
       (body_json.as_str().unwrap().to_string(), None)
     };
+    let data = escape_value(data);
     let api_response = ApiResponse {
       ret_code,
       ret_msg: message,
