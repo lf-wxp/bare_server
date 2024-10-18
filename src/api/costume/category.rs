@@ -6,7 +6,7 @@ use crate::{
   collection::{CollectionOperations, CostumeCategories},
   document::CostumeCategory,
   guard,
-  responder::DocumentActionResponder,
+  responder::DocumentActionResponder, utils::GenOptionValue,
 };
 
 #[get("/costume_category?<filter..>")]
@@ -17,15 +17,15 @@ pub async fn get_list(
   let costume_categories = CostumeCategories::new();
   costume_categories.list(&filter).await
 }
-#[get("/costume_category/<category_name>?<filter..>")]
+#[get("/costume_category/<category_value>?<filter..>")]
 pub async fn get_item(
   _auth: guard::Auth,
-  category_name: &str,
+  category_value: &str,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   costume_categories
-    .find_one(doc! { "name": category_name }, &filter)
+    .find_one(doc! { "value": category_value }, &filter)
     .await
 }
 
@@ -36,36 +36,37 @@ pub async fn add_item(
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   let mut category = (*category).clone();
+  category.set_value();
   costume_categories.insert(&mut category).await
 }
 
 #[put(
-  "/costume_category/<category_name>?<filter..>",
+  "/costume_category/<category_value>?<filter..>",
   format = "json",
   data = "<category>"
 )]
 pub async fn update_item(
   _auth: guard::Auth,
-  category_name: &str,
+  category_value: &str,
   category: Json<CostumeCategory>,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   let category = (*category).clone();
   costume_categories
-    .update(doc! { "name": category_name}, &filter, category)
+    .update(doc! { "value": category_value}, &filter, category)
     .await
 }
 
-#[delete("/costume_category/<category_name>?<filter..>")]
+#[delete("/costume_category/<category_value>?<filter..>")]
 pub async fn delete_item(
   _auth: guard::Auth,
-  category_name: &str,
+  category_value: &str,
   filter: HashMap<&str, &str>,
 ) -> DocumentActionResponder<CostumeCategory> {
   let costume_categories = CostumeCategories::new();
   costume_categories
-    .delete(doc! { "name": category_name }, &filter)
+    .delete(doc! { "value": category_value }, &filter)
     .await
 }
 
